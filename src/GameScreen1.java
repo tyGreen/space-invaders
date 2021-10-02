@@ -63,7 +63,8 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		prjct_player.setLbl_enemy(lbl_enemy);
 		
 		lbl_prjct_enemy = new JLabel();
-		prjct_enemy = new ProjectileEnemy(lbl_prjct_enemy);
+//		prjct_enemy = new ProjectileEnemy(lbl_prjct_enemy, myEnemy);
+		prjct_enemy = new ProjectileEnemy(myEnemy);
 		img_prjct_enemy = new ImageIcon(getClass().getResource(prjct_enemy.getFileName()));
 		lbl_prjct_enemy.setIcon(img_prjct_enemy);
 		lbl_prjct_enemy.setSize(prjct_enemy.getWidth(), prjct_enemy.getHeight());
@@ -121,6 +122,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	public static void main(String args[]) { 
 		GameScreen1 myGameScreen = new GameScreen1();
 		myGameScreen.setVisible(true); 
+		myGameScreen.prjct_enemy.startEnemyProjectileThread();
 	}
 
 	@Override
@@ -152,16 +154,14 @@ public class GameScreen1 extends JFrame implements KeyListener{
 					prjct_player.launchPlayerProjectile();
 				}
 		}
-		else if(e.getKeyCode() == KeyEvent.VK_S) {//Launch enemy projectile
-			System.out.println(prjct_enemy.getInMotion());
-			if(prjct_enemy.getInMotion() == false) {
-				//Shoot
-				prjct_enemy.launchEnemyProjectile();
-			}
-			else {
-				//Don't shoot
-			}
-		}
+//		else if(e.getKeyCode() == KeyEvent.VK_S) {//Launch enemy projectile
+//			if(myEnemy.getInMotion() == true) {
+//				if(prjct_enemy.getInMotion() == false) {
+//					//Shoot
+//					prjct_enemy.startEnemyProjectileThread();
+//				}
+//			}
+//		}
 		myPlayer.setX(player_x);
 		lbl_player.setLocation(myPlayer.getX(), myPlayer.getY());
 		//Update x-coordinate of player projectile ONLY IF not in already motion:
