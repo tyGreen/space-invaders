@@ -11,7 +11,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	private Thread thread1;
 	private JLabel lbl_prjct_enemy, lbl_player;
 	private Player myPlayer;
-	private Timer timer;
+	private Timer tmr_regeneratePlayer;
 	private Boolean isEnemy;
 	
 	//Getters & setters:
@@ -45,7 +45,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	public void show() {
 		lbl_prjct_enemy.setVisible(true);
 	}
-	
+		
 	public void launchEnemyProjectile() {
 		thread1 = new Thread(this, "Enemy Projectile Thread");
 		thread1.start();
@@ -70,7 +70,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 				break;
 			}
 			try {
-				Thread.sleep(45);
+				Thread.sleep((long) (Math.random() * 100));
 			}
 			catch(Exception e) {
 				
@@ -82,16 +82,21 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	
 	private void detectPlayerCollision() {
 		if(this.hitbox.intersects(myPlayer.getHitbox())) {
-			myPlayer.stop();
-			System.out.println("Boom!");
+			myPlayer.hitbox.setSize(0, 0);
+			myPlayer.setCanMove(false);
 			lbl_player.setIcon(new ImageIcon(getClass().getResource("img_explosion_player.gif")));
-			timer = new Timer(600, new ActionListener() {
+			tmr_regeneratePlayer = new Timer(1500, new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					myPlayer.hitbox.setSize(0, 0);
-					lbl_player.setVisible(false);
+					myPlayer.hitbox.setSize(myPlayer.getWidth(), myPlayer.getHeight());
+					myPlayer.setCanMove(true);
+					lbl_player.setIcon(new ImageIcon(getClass().getResource("img_player.png")));
+					
 				}
 			});
-			timer.start();
+			tmr_regeneratePlayer.start();
 		}
+		
+//		myPlayer.setX((GameProperties.SCREEN_WIDTH/2) - myPlayer.getWidth());
+//		lbl_player.setLocation(myPlayer.getX(), myPlayer.getY());
 	}
 }

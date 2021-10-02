@@ -118,9 +118,9 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
 	}
 
-	public static void main(String args[]) {
+	public static void main(String args[]) { 
 		GameScreen1 myGameScreen = new GameScreen1();
-		myGameScreen.setVisible(true);
+		myGameScreen.setVisible(true); 
 	}
 
 	@Override
@@ -137,24 +137,22 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		int enemy_y = myEnemy.getY();
 
 		if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-			if((player_x - GameProperties.PLAYER_STEP) > 0) {
+			if((myPlayer.getCanMove() == true) && (player_x - GameProperties.PLAYER_STEP) > 0) {
 				player_x -= GameProperties.PLAYER_STEP;
 			}
 		}
 		else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			if((player_x + myPlayer.getWidth() + GameProperties.PLAYER_STEP) < GameProperties.SCREEN_WIDTH) {
+			if((myPlayer.getCanMove() == true) && (player_x + myPlayer.getWidth() + GameProperties.PLAYER_STEP) < GameProperties.SCREEN_WIDTH) {
 				player_x += GameProperties.PLAYER_STEP;
 			}
 		}
 		else if(e.getKeyCode() == KeyEvent.VK_SPACE) {//Launch player projectile
-				if(prjct_player.getInMotion() == false) {
+				if((myPlayer.getCanMove() == true) && (prjct_player.getInMotion() == false)) {
 					//Shoot
 					prjct_player.launchPlayerProjectile();
 				}
-				else {
-					//Don't shoot
-				}
-		}else if(e.getKeyCode() == KeyEvent.VK_S) {//Launch enemy projectile
+		}
+		else if(e.getKeyCode() == KeyEvent.VK_S) {//Launch enemy projectile
 			System.out.println(prjct_enemy.getInMotion());
 			if(prjct_enemy.getInMotion() == false) {
 				//Shoot
@@ -163,7 +161,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			else {
 				//Don't shoot
 			}
-	}
+		}
 		myPlayer.setX(player_x);
 		lbl_player.setLocation(myPlayer.getX(), myPlayer.getY());
 		//Update x-coordinate of player projectile ONLY IF not in already motion:
@@ -172,7 +170,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			prjct_player.setY(player_y);
 			lbl_prjct_player.setLocation(myPlayer.getX(), myPlayer.getY());
 		}
-		//Update x-coordinate of player projectile ONLY IF not in already motion:
+		//Update x-coordinate of enemy projectile ONLY IF not already in motion:
 		if(prjct_enemy.getInMotion() == false) {
 			prjct_enemy.setX(enemy_x);
 			prjct_enemy.setY(enemy_y);
@@ -183,7 +181,5 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	@Override
 	public void keyReleased(KeyEvent e) {
 		//Key release only	
-	}
+	}	
 }
-
-//Test comment
