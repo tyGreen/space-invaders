@@ -170,6 +170,8 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			prjct_player.setY(player_y);
 			lbl_prjct_player.setLocation(myPlayer.getX(), myPlayer.getY());
 		}
+//		myEnemy.setX(enemy_x);
+//		lbl_enemy.setLocation(myEnemy.getX(), myEnemy.getY());
 		//Update x-coordinate of enemy projectile ONLY IF not already in motion:
 		if(prjct_enemy.getInMotion() == false) {
 			prjct_enemy.setX(enemy_x);

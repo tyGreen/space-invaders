@@ -13,7 +13,10 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	private Player myPlayer;
 	private Timer tmr_regeneratePlayer, tmr_launchEnemyProjectile;
 	private Enemy myEnemy;
+	private Boolean collision;
 	
+	public Boolean getCollision() {return collision;}
+	public void setCollision(Boolean temp) {this.collision = temp;}
 	//When passing in arguments via setters, DO NOT alter or create new constructors for the argument - setter only!
 	public void setPlayer(Player temp) {this.myPlayer = temp;}
 	public void setLbl_prjct_enemy(JLabel temp) {this.lbl_prjct_enemy = temp;}
@@ -24,11 +27,13 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	//Default
 	public ProjectileEnemy() {
 		super(25, 30, "img_prjct_enemy.png", false, false);
+		this.collision = false;
 	}
 	
 	public ProjectileEnemy(Enemy temp) {
 		super(25, 30, "img_prjct_enemy.png", false, false);
 		this.myEnemy = temp;
+		this.collision = false;
 	}
 	
 //	//Secondary
@@ -57,18 +62,15 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 		while(this.myEnemy.getInMotion() == true) {
 			int thread1_x = this.myEnemy.getX();
 			int thread1_y = this.myEnemy.getY();
-			while(thread1_y < GameProperties.SCREEN_HEIGHT) {
+			this.setCollision(false);
+			while(thread1_y < GameProperties.SCREEN_HEIGHT && this.getCollision() == false) {
 				this.move();
-				this.show(); //overridden to do same as lbl_prjct_enemy.setVisinle(true);
+				this.show(); //overridden to do same as lbl_prjct_enemy.setVisible(true);
 				thread1_y += GameProperties.PRJCT_ENEMY_STEP;
 				this.setX(thread1_x);
 				this.setY(thread1_y);
 				lbl_prjct_enemy.setLocation(this.x, this.y);
 				this.detectPlayerCollision();
-				if(this.hitbox.intersects(myPlayer.getHitbox())) {
-					//If player collision detected, reset projectile
-					break;
-				}
 				try {
 					Thread.sleep(50);
 				}
@@ -81,6 +83,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	
 	private void detectPlayerCollision() {
 		if(this.hitbox.intersects(myPlayer.getHitbox())) {
+			this.setCollision(true);
 			myPlayer.hitbox.setSize(0, 0);
 			myPlayer.setCanMove(false);
 			lbl_player.setIcon(new ImageIcon(getClass().getResource("img_explosion_player.gif")));
