@@ -57,6 +57,23 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 		thread1.start();
 	}
 	
+	private void detectPlayerCollision() {
+		if(this.hitbox.intersects(myPlayer.getHitbox())) {
+			this.setCollision(true);
+			myPlayer.hitbox.setSize(0, 0);
+			myPlayer.setCanMove(false);
+			lbl_player.setIcon(new ImageIcon(getClass().getResource("img_explosion_player.gif")));
+			tmr_regeneratePlayer = new Timer(1500, new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					myPlayer.hitbox.setSize(myPlayer.getWidth(), myPlayer.getHeight());
+					myPlayer.setCanMove(true);
+					lbl_player.setIcon(new ImageIcon(getClass().getResource("img_player.png")));	
+				}
+			});
+			tmr_regeneratePlayer.start();
+		}
+	}
+	
 	@Override
 	public void run() {
 		while(this.myEnemy.getInMotion() == true) {
@@ -78,23 +95,6 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 					
 				}
 			}
-		}
-	}
-	
-	private void detectPlayerCollision() {
-		if(this.hitbox.intersects(myPlayer.getHitbox())) {
-			this.setCollision(true);
-			myPlayer.hitbox.setSize(0, 0);
-			myPlayer.setCanMove(false);
-			lbl_player.setIcon(new ImageIcon(getClass().getResource("img_explosion_player.gif")));
-			tmr_regeneratePlayer = new Timer(1500, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					myPlayer.hitbox.setSize(myPlayer.getWidth(), myPlayer.getHeight());
-					myPlayer.setCanMove(true);
-					lbl_player.setIcon(new ImageIcon(getClass().getResource("img_player.png")));	
-				}
-			});
-			tmr_regeneratePlayer.start();
 		}
 	}
 }

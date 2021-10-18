@@ -45,6 +45,21 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		thread1.start();
 	}
 	
+	private void detectEnemyCollision() {
+		if(this.hitbox.intersects(myEnemy.getHitbox())) {
+			myEnemy.stop();
+			System.out.println("Boom!");
+			lbl_enemy.setIcon(new ImageIcon(getClass().getResource("img_explosion_enemy.gif")));
+			timer = new Timer(600, new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					myEnemy.hitbox.setSize(0, 0);
+					lbl_enemy.setVisible(false);
+				}
+			});
+			timer.start();
+		}
+	}
+	
 	@Override
 	public void run() {
 		int thread1_x = this.x;
@@ -72,20 +87,5 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		}
 		this.stop();
 		lbl_prjct_player.setVisible(false);
-	}
-	
-	private void detectEnemyCollision() {
-		if(this.hitbox.intersects(myEnemy.getHitbox())) {
-			myEnemy.stop();
-			System.out.println("Boom!");
-			lbl_enemy.setIcon(new ImageIcon(getClass().getResource("img_explosion_enemy.gif")));
-			timer = new Timer(600, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					myEnemy.hitbox.setSize(0, 0);
-					lbl_enemy.setVisible(false);
-				}
-			});
-			timer.start();
-		}
 	}
 }

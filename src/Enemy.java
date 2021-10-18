@@ -34,6 +34,13 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 		thread1 = new Thread(this, "Enemey Thread");
 		thread1.start(); //Triggers/starts the thread
 	}
+	
+//	private void moveEnemyDown(int x, int y) {
+//		y += this.getHeight();
+//		this.setX(x);
+//		this.setY(y);
+//		lbl_enemy.setLocation(this.x, this.y);
+//	}
 
 	@Override
 	public void run() { 
@@ -41,8 +48,7 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 				//Get current x,y:
 				int thread1_x = this.x;
 				int thread1_y = this.y;
-				
-//				OUTER_LOOP:
+
 				while(true) {
 					while((this.getInMotion() == true) && (thread1_x + this.width + GameProperties.ENEMY_STEP) < GameProperties.SCREEN_WIDTH) {
 						//Move right:
@@ -50,10 +56,6 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						this.setX(thread1_x);
 						this.setY(thread1_y);
 						lbl_enemy.setLocation(this.x, this.y);
-//						this.detectProjectileCollision();
-//						if(this.hitbox.intersects(myProjectile.getHitbox())) {
-//							break OUTER_LOOP;
-//						}
 						try {
 							Thread.sleep(200);
 						}
@@ -61,16 +63,21 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 							
 						}
 					}
+					
+					if(thread1_y < 800) {
+						//Drop enemies down one row when they hit a right wall:
+						thread1_y += this.getHeight();
+						this.setX(thread1_x);
+						this.setY(thread1_y);
+						lbl_enemy.setLocation(this.x, this.y);
+					}
+					
 					while((this.getInMotion() == true) && (thread1_x > 0)) {
 						//Move left:
 						thread1_x -= GameProperties.ENEMY_STEP;
 						this.setX(thread1_x);
 						this.setY(thread1_y);
-						lbl_enemy.setLocation(this.x, this.y);
-//						this.detectProjectileCollision();
-//						if(this.hitbox.intersects(myProjectile.getHitbox())) {
-//							break OUTER_LOOP;
-//						}
+						lbl_enemy.setLocation(this.x, this.y);			
 						try {
 							Thread.sleep(200);
 						}
@@ -78,17 +85,15 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 							
 						}
 					}
+					
+					if(thread1_y < GameProperties.SCREEN_HEIGHT && thread1_y > 0) {
+						//Drop enemies down one row when they hit a left wall:
+						thread1_y += this.getHeight();
+						this.setX(thread1_x);
+						this.setY(thread1_y);
+						lbl_enemy.setLocation(this.x, this.y);
+					}
 				}
-			}
 		}
-	
-//		private void detectProjectileCollision() {
-//			if(this.hitbox.intersects(myProjectile.getHitbox())) {
-//				System.out.println("boom!");
-////				this.moving = false;
-////				lbl_enemy.setIcon(new ImageIcon(getClass().getResource("img_explosion.gif")));
-////				this.hide();
-//				
-//			}
-//		}
 	}
+}
