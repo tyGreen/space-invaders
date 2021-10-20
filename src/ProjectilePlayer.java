@@ -21,12 +21,12 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	//Constructors:
 	//Default
 	public ProjectilePlayer() {
-		super(50, 60, "img_prjct_player.png", false, false);
+		super(50, 60, "img_prjct_player.png", false, false, false);
 	}
 	
 	//Secondary
 	public ProjectilePlayer(JLabel temp1) {
-		super(50, 60, "img_prjct_player.png", false, false);
+		super(50, 60, "img_prjct_player.png", false, false, false);
 		this.lbl_prjct_player = temp1;
 	}
 	

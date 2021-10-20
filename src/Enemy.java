@@ -4,15 +4,17 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 	
 	private Thread thread1;
 	private JLabel lbl_enemy;
+	private Player myPlayer;
 
 	//Constructors:
 	public Enemy() {
-		super(50, 50, "img_invader1.gif", true, true);
+		super(50, 50, "img_invader1.gif", true, true, false);
 	}
 	
-	public Enemy(JLabel temp) {
-		super(50, 50, "img_invader1.gif", true, true);
-		this.lbl_enemy = temp;
+	public Enemy(JLabel temp1, Player temp2) {
+		super(50, 50, "img_invader1.gif", true, true, false);
+		this.lbl_enemy = temp1;
+		this.myPlayer = temp2;
 	}
 	
 	//Other methods:
@@ -29,7 +31,7 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 	public void display() {
 		System.out.println("x,y / visible?: " + this.x + "," + this.y + " / " + this.visible);
 	}
-	
+
 	public void moveEnemy() {
 		thread1 = new Thread(this, "Enemey Thread");
 		thread1.start(); //Triggers/starts the thread
@@ -49,7 +51,7 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 				int thread1_x = this.x;
 				int thread1_y = this.y;
 
-				while(true) {
+				while(!this.getGameOver()) {
 					while((this.getInMotion() == true) && (thread1_x + this.width + GameProperties.ENEMY_STEP) < GameProperties.SCREEN_WIDTH) {
 						//Move right:
 						thread1_x += GameProperties.ENEMY_STEP;
@@ -64,12 +66,18 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						}
 					}
 					
-					if(thread1_y < 800) {
-						//Drop enemies down one row when they hit a right wall:
+//					if((thread1_y + (this.getHeight()*2)) < GameProperties.SCREEN_HEIGHT && thread1_y >= 0) {
+					if((thread1_y + this.getHeight()) <= myPlayer.getY()) {
+						//Drop enemies down one row when they reach right wall:
 						thread1_y += this.getHeight();
 						this.setX(thread1_x);
 						this.setY(thread1_y);
 						lbl_enemy.setLocation(this.x, this.y);
+					}
+					else {
+						this.setGameOver(true);
+						myPlayer.setCanMove(false);
+						this.gameOver();
 					}
 					
 					while((this.getInMotion() == true) && (thread1_x > 0)) {
@@ -86,12 +94,18 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						}
 					}
 					
-					if(thread1_y < GameProperties.SCREEN_HEIGHT && thread1_y > 0) {
-						//Drop enemies down one row when they hit a left wall:
+//					if((thread1_y + this.getHeight()) < GameProperties.SCREEN_HEIGHT && thread1_y >= 0) {
+					if((thread1_y + this.getHeight()) <= myPlayer.getY()) {
+						//Drop enemies down one row when they reach left wall:
 						thread1_y += this.getHeight();
 						this.setX(thread1_x);
 						this.setY(thread1_y);
 						lbl_enemy.setLocation(this.x, this.y);
+					}
+					else {
+						this.setGameOver(true);
+						myPlayer.setCanMove(false);
+						this.gameOver();
 					}
 				}
 		}

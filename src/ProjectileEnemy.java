@@ -26,12 +26,12 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	//Constructors:
 	//Default
 	public ProjectileEnemy() {
-		super(25, 30, "img_prjct_enemy.png", false, false);
+		super(25, 30, "img_prjct_enemy.png", false, false, false);
 		this.collision = false;
 	}
 	
 	public ProjectileEnemy(Enemy temp) {
-		super(25, 30, "img_prjct_enemy.png", false, false);
+		super(25, 30, "img_prjct_enemy.png", false, false, false);
 		this.myEnemy = temp;
 		this.collision = false;
 	}

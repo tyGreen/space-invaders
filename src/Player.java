@@ -11,12 +11,12 @@ public class Player extends Sprite {
 
 	//Constructors:
 	public Player() {
-		super(50, 60, "img_player.png", false, true);
+		super(50, 60, "img_player.png", false, true, false);
 		canMove = true;
 	}
 	
 	public Player(JLabel temp) {
-		super(50, 60, "img_player.png", false, true);
+		super(50, 60, "img_player.png", false, true, false);
 		this.lbl_player = temp;
 		canMove = true;
 	}

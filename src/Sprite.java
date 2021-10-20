@@ -1,5 +1,7 @@
 import java.awt.Rectangle;
 
+import javax.swing.JOptionPane;
+
 //Base class for all game sprites
 public class Sprite {
 	protected int x, y, width, height;
@@ -7,7 +9,7 @@ public class Sprite {
 		//width & height -> SIZE of object
 	protected String fileName;
 	protected Rectangle hitbox;
-	protected Boolean inMotion, visible;
+	protected Boolean inMotion, visible, gameOver;
 	
 	//Getters & setters:
 	public int getX() {return x;}
@@ -31,6 +33,9 @@ public class Sprite {
 	public Boolean getVisible() {return visible;}
 	public void setVisible(Boolean visible) {this.visible = visible;}
 	
+	public Boolean getGameOver() {return gameOver;}
+	public void setGameOver(Boolean gameOver) {this.gameOver = gameOver;}
+	
 	public Rectangle getHitbox() {return hitbox;}
 //	public void setHitbox(Rectangle hitbox) {this.hitbox = hitbox;}
 	
@@ -44,12 +49,13 @@ public class Sprite {
 		this.fileName = "";
 		this.inMotion = false;
 		this.visible = false;
+		this.gameOver = false;
 		this.hitbox = new Rectangle(this.x, this.y, this.width, this.height);
 	}
 	
 	//Secondary constructors:
 		//All fields:
-	public Sprite(int x, int y, int width, int height, String fileName, Boolean moving, Boolean visible) {
+	public Sprite(int x, int y, int width, int height, String fileName, Boolean moving, Boolean visible, Boolean gameOver) {
 		super();
 		this.x = x;
 		this.y = y;
@@ -58,11 +64,12 @@ public class Sprite {
 		this.fileName = fileName;
 		this.inMotion = moving;
 		this.visible = visible;
+		this.gameOver = gameOver;
 		this.hitbox = new Rectangle(this.x, this.y, this.width, this.height);
 	}
 	
-		//width, height, fileName, moving, and visible:
-	public Sprite(int width, int height, String fileName, Boolean moving, Boolean visible) {
+		//width, height, fileName, moving, visible, & gameOver:
+	public Sprite(int width, int height, String fileName, Boolean moving, Boolean visible, Boolean gameOver) {
 		super();
 		this.x = 0;
 		this.y = 0;
@@ -71,6 +78,7 @@ public class Sprite {
 		this.fileName = fileName;
 		this.inMotion = moving;
 		this.visible = visible;
+		this.gameOver = false;
 		this.hitbox = new Rectangle(this.x, this.y, this.width, this.height);
 	}
 	
@@ -84,4 +92,11 @@ public class Sprite {
 	public void stop( ) {this.inMotion = false;}
 	public void hide() {this.visible = false;}
 	public void show() {this.visible = true;}
+	
+	public void gameOver() {
+		this.gameOver = true;
+		this.stop();
+		JOptionPane.showMessageDialog(null, "GAME OVER");
+		System.exit(0);
+	}
 }

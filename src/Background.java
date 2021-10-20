@@ -8,7 +8,8 @@ public class Background extends Sprite {
 			GameProperties.SCREEN_HEIGHT,
 			"img_bg.gif",
 			false,
-			true
+			true,
+			false
 		);
 	}
 }

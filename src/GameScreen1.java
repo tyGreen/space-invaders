@@ -44,7 +44,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		lbl_player.setSize(myPlayer.getWidth(), myPlayer.getHeight());
 		
 		lbl_enemy = new JLabel();
-		myEnemy = new Enemy(lbl_enemy);
+		myEnemy = new Enemy(lbl_enemy, myPlayer);
 		img_enemy = new ImageIcon(getClass().getResource(myEnemy.getFileName()));
 		lbl_enemy.setIcon(img_enemy);
 		lbl_enemy.setSize(myEnemy.getWidth(), myEnemy.getHeight());
