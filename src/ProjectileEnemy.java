@@ -14,6 +14,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	private Timer tmr_regeneratePlayer, tmr_launchEnemyProjectile;
 	private Enemy myEnemy;
 	private Boolean collision;
+	private JLabel[] lbl_playerLives;
 	
 	public Boolean getCollision() {return collision;}
 	public void setCollision(Boolean temp) {this.collision = temp;}
@@ -30,9 +31,10 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 		this.collision = false;
 	}
 	
-	public ProjectileEnemy(Enemy temp) {
+	public ProjectileEnemy(Enemy temp1, JLabel[] temp2) {
 		super(25, 30, "img_prjct_enemy.png", false, false, false);
-		this.myEnemy = temp;
+		this.myEnemy = temp1;
+		this.lbl_playerLives = temp2;
 		this.collision = false;
 	}
 	
@@ -60,6 +62,11 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	private void detectPlayerCollision() {
 		if(this.hitbox.intersects(myPlayer.getHitbox())) {
 			this.setCollision(true);
+			
+			myPlayer.setPlayerLives(myPlayer.getPlayerLives() - 1);
+			lbl_playerLives[myPlayer.getPlayerLives()].setVisible(false);
+			System.out.println("Player Lives Remaining: " + myPlayer.getPlayerLives());
+			
 			myPlayer.hitbox.setSize(0, 0);
 			myPlayer.setCanMove(false);
 			lbl_player.setIcon(new ImageIcon(getClass().getResource("img_explosion_player.gif")));
@@ -70,7 +77,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 					lbl_player.setIcon(new ImageIcon(getClass().getResource("img_player.png")));	
 				}
 			});
-			tmr_regeneratePlayer.start();
+			tmr_regeneratePlayer.start();	
 		}
 	}
 	
@@ -88,6 +95,14 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 				this.setY(thread1_y);
 				lbl_prjct_enemy.setLocation(this.x, this.y);
 				this.detectPlayerCollision();
+				
+				//Check player lives to determine if game should continue:
+				if(myPlayer.getPlayerLives() == 0) {
+					myEnemy.stop();
+					myEnemy.setGameOver(true);
+					this.gameOver();
+				}
+				
 				try {
 					Thread.sleep(50);
 				}

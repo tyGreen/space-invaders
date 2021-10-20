@@ -9,5 +9,5 @@ public class GameProperties {
 	public static final int PLAYER_STEP = 15;
 	public static final int PRJCT_PLAYER_STEP = 40;
 	public static final int PRJCT_ENEMY_STEP = 20;
-	public static final int ENEMY_STEP = 200;
+	public static final int ENEMY_STEP = 10;
 }

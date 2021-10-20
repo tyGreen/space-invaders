@@ -21,6 +21,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	//JLabels to display sprites:
 	private JLabel lbl_player, lbl_enemy, lbl_prjct_player, lbl_prjct_enemy, lbl_bg;
 	private ImageIcon img_player, img_enemy, img_prjct_player, img_prjct_enemy, img_bg;
+	private JLabel[] lbl_playerLives;
 	
 //	//Button to control Enemy:
 //	private JButton btn_hideEnemy, btn_moveEnemy;
@@ -43,6 +44,13 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		lbl_player.setIcon(img_player);
 		lbl_player.setSize(myPlayer.getWidth(), myPlayer.getHeight());
 		
+		lbl_playerLives = new JLabel[3];
+		for(int i = 0; i < 3; i++) {
+			lbl_playerLives[i] = new JLabel();
+			lbl_playerLives[i].setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+			lbl_playerLives[i].setSize(30, 30);
+		}
+		
 		lbl_enemy = new JLabel();
 		myEnemy = new Enemy(lbl_enemy, myPlayer);
 		img_enemy = new ImageIcon(getClass().getResource(myEnemy.getFileName()));
@@ -64,7 +72,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		
 		lbl_prjct_enemy = new JLabel();
 //		prjct_enemy = new ProjectileEnemy(lbl_prjct_enemy, myEnemy);
-		prjct_enemy = new ProjectileEnemy(myEnemy);
+		prjct_enemy = new ProjectileEnemy(myEnemy, lbl_playerLives);
 		img_prjct_enemy = new ImageIcon(getClass().getResource(prjct_enemy.getFileName()));
 		lbl_prjct_enemy.setIcon(img_prjct_enemy);
 		lbl_prjct_enemy.setSize(prjct_enemy.getWidth(), prjct_enemy.getHeight());
@@ -98,6 +106,11 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		
 		//Update lbl positions to match stored values:
 		lbl_player.setLocation(myPlayer.getX(), myPlayer.getY());
+		int offset = 0;
+		for(int i = 0; i < lbl_playerLives.length; i++) {
+			lbl_playerLives[i].setLocation(offset, (GameProperties.SCREEN_HEIGHT - 70));
+			offset += 30;
+		}
 		lbl_prjct_player.setLocation(myPlayer.getX(), myPlayer.getY());
 		lbl_enemy.setLocation(myEnemy.getX(), myEnemy.getY());
 		lbl_prjct_enemy.setLocation(myEnemy.getX(), myEnemy.getY());
@@ -105,6 +118,9 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		
 		//Add objects to screen:
 		add(lbl_player);
+		for(int i = 0; i < lbl_playerLives.length; i++) {
+			this.add(lbl_playerLives[i]);
+		}
 		add(lbl_prjct_player);
 		add(lbl_enemy);
 		add(lbl_prjct_enemy);

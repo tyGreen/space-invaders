@@ -66,7 +66,6 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						}
 					}
 					
-//					if((thread1_y + (this.getHeight()*2)) < GameProperties.SCREEN_HEIGHT && thread1_y >= 0) {
 					if((thread1_y + this.getHeight()) <= myPlayer.getY()) {
 						//Drop enemies down one row when they reach right wall:
 						thread1_y += this.getHeight();
@@ -76,7 +75,6 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 					}
 					else {
 						this.setGameOver(true);
-						myPlayer.setCanMove(false);
 						this.gameOver();
 					}
 					
@@ -94,7 +92,6 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						}
 					}
 					
-//					if((thread1_y + this.getHeight()) < GameProperties.SCREEN_HEIGHT && thread1_y >= 0) {
 					if((thread1_y + this.getHeight()) <= myPlayer.getY()) {
 						//Drop enemies down one row when they reach left wall:
 						thread1_y += this.getHeight();
@@ -104,7 +101,6 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 					}
 					else {
 						this.setGameOver(true);
-						myPlayer.setCanMove(false);
 						this.gameOver();
 					}
 				}
