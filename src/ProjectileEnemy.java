@@ -11,7 +11,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	private Thread thread1;
 	private JLabel lbl_prjct_enemy, lbl_player;
 	private Player myPlayer;
-	private Timer tmr_regeneratePlayer, tmr_launchEnemyProjectile;
+	private Timer tmr_regeneratePlayer;
 	private Enemy myEnemy;
 	private Boolean collision;
 	private JLabel[] lbl_playerLives;

@@ -10,11 +10,11 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	//Attributes:
 	private Thread thread1;
 	private JLabel lbl_prjct_player, lbl_enemy;
-	private Enemy myEnemy;
+	private Enemy[][] enemies;
 	private Timer timer;
 	
 	//When passing in arguments via setters, DO NOT alter or create new constructors for the argument - setter only!
-	public void setEnemy(Enemy temp) {this.myEnemy = temp;}
+	public void setEnemies(Enemy[][] temp) {this.enemies = temp;}
 	public void setLbl_prjct_player(JLabel temp) {this.lbl_prjct_player = temp;}
 	public void setLbl_enemy(JLabel temp) {this.lbl_enemy = temp;}
 
@@ -46,17 +46,23 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	}
 	
 	private void detectEnemyCollision() {
-		if(this.hitbox.intersects(myEnemy.getHitbox())) {
-			myEnemy.stop();
-			System.out.println("Boom!");
-			lbl_enemy.setIcon(new ImageIcon(getClass().getResource("img_explosion_enemy.gif")));
-			timer = new Timer(600, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					myEnemy.hitbox.setSize(0, 0);
-					lbl_enemy.setVisible(false);
+//		int i = 0;
+//		int j = 0;
+		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+				if(this.hitbox.intersects(enemies[i][j].getHitbox())) {
+					enemies[i][j].stop();
+					enemies[i][j].hitbox.setSize(0, 0);
+					System.out.println("Boom!");
+					lbl_enemy.setIcon(new ImageIcon(getClass().getResource("img_explosion_enemy.gif")));
+					timer = new Timer(600, new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							lbl_enemy.setVisible(false);
+						}
+					});
+					timer.start();
 				}
-			});
-			timer.start();
+			}
 		}
 	}
 	
@@ -74,18 +80,22 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 			this.setY(thread1_y);
 			lbl_prjct_player.setLocation(this.x, this.y);
 			this.detectEnemyCollision();
-			if(this.hitbox.intersects(myEnemy.getHitbox())) {
-				//If enemy collision detected, reset laser
-				break;
+			for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+				for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+					if(this.hitbox.intersects(enemies[i][j].getHitbox())) {
+						//If enemy collision detected, reset laser
+						break;
+					}
+				}
+				try {
+					Thread.sleep(45);
+				}
+				catch(Exception e) {
+					
+				}
 			}
-			try {
-				Thread.sleep(45);
-			}
-			catch(Exception e) {
-				
-			}
+			this.stop();
+			lbl_prjct_player.setVisible(false);
 		}
-		this.stop();
-		lbl_prjct_player.setVisible(false);
 	}
 }

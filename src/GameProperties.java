@@ -10,4 +10,8 @@ public class GameProperties {
 	public static final int PRJCT_PLAYER_STEP = 40;
 	public static final int PRJCT_ENEMY_STEP = 20;
 	public static final int ENEMY_STEP = 10;
+	
+	//# rows & columns in ememy array:
+	public static final int ENEMY_ROWS = 5;
+	public static final int ENEMY_COLS = 11;
 }
