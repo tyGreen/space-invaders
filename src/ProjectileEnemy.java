@@ -27,12 +27,12 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	//Constructors:
 	//Default
 	public ProjectileEnemy() {
-		super(25, 30, "img_prjct_enemy.png", false, false, false);
+		super(GameProperties.PRJCT_ENEMY_WIDTH, GameProperties.PRJCT_ENEMY_HEIGHT, "img_prjct_enemy.png", false, false, false);
 		this.collision = false;
 	}
 	
 	public ProjectileEnemy(Enemy temp1, JLabel[] temp2) {
-		super(25, 30, "img_prjct_enemy.png", false, false, false);
+		super(GameProperties.PRJCT_ENEMY_WIDTH, GameProperties.PRJCT_ENEMY_HEIGHT, "img_prjct_enemy.png", false, false, false);
 		this.myEnemy = temp1;
 		this.lbl_playerLives = temp2;
 		this.collision = false;
@@ -104,7 +104,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 				}
 				
 				try {
-					Thread.sleep(50);
+					Thread.sleep(200);
 				}
 				catch(Exception e) {
 					

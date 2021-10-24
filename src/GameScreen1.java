@@ -65,7 +65,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 				img_enemy = new ImageIcon(getClass().getResource(enemies[i][j].getFileName()));
 				enemies[i][j].getLbl_enemy().setIcon(img_enemy);
 				enemies[i][j].getLbl_enemy().setSize(enemies[i][j].getWidth(), enemies[i][j].getHeight());			
-				enemyOffsetX += enemies[i][j].getWidth();
+				enemyOffsetX += (enemies[i][j].getWidth() + GameProperties.ENEMY_SPACING);
 				if(j == (GameProperties.ENEMY_COLS - 1)) {
 					enemyOffsetY += enemies[i][j].getHeight();
 				}
@@ -73,17 +73,17 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		}
 		
 		lbl_prjct_player = new JLabel();
-		prjct_player = new ProjectilePlayer(lbl_prjct_player);
+		prjct_player = new ProjectilePlayer(lbl_prjct_player, myPlayer);
 		img_prjct_player = new ImageIcon(getClass().getResource(prjct_player.getFileName()));
 		lbl_prjct_player.setIcon(img_prjct_player);
 		lbl_prjct_player.setSize(prjct_player.getWidth(), prjct_player.getHeight());
 		prjct_player.setLbl_prjct_player(lbl_prjct_player);
 		prjct_player.setEnemies(enemies);
-		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				prjct_player.setLbl_enemy(enemies[i][j].getLbl_enemy());
-			}
-		}
+//		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+//			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+//				prjct_player.setLbl_enemy(enemies[i][j].getLbl_enemy());
+//			}
+//		}
 		
 		lbl_prjct_enemy = new JLabel();
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
@@ -113,7 +113,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		myPlayer.setX((GameProperties.SCREEN_WIDTH/2) - myPlayer.getWidth());
 		myPlayer.setY(GameProperties.SCREEN_HEIGHT - (myPlayer.getHeight() * 2));
 		
-		prjct_player.setX(myPlayer.getX());
+		prjct_player.setX(myPlayer.getX() + (prjct_player.getWidth()/2));
 		prjct_player.setY(myPlayer.getY());
 		
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
@@ -137,7 +137,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			lbl_playerLives[i].setLocation(offset_playerLives, (GameProperties.SCREEN_HEIGHT - 70));
 			offset_playerLives += 30;
 		}
-		lbl_prjct_player.setLocation(myPlayer.getX(), myPlayer.getY());
+		lbl_prjct_player.setLocation(prjct_player.getX(), prjct_player.getY());
 		int offset_enemyX = 0;
 		int offset_enemyY = 0;
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
@@ -145,8 +145,8 @@ public class GameScreen1 extends JFrame implements KeyListener{
 //			int j;
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				enemies[i][j].getLbl_enemy().setLocation(enemies[i][j].getX() + offset_enemyX, enemies[i][j].getY() + offset_enemyY);
-				offset_enemyX += enemies[i][j].getWidth();
-				if(j == (GameProperties.ENEMY_COLS - 1)) {
+				offset_enemyX += (enemies[i][j].getWidth() + GameProperties.ENEMY_SPACING);
+				if(j == (GameProperties.ENEMY_COLS)) {
 					offset_enemyY += enemies[i][j].getHeight();
 				}
 			}
@@ -170,9 +170,9 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			}
 		}
 		add(lbl_prjct_enemy);
-		add(lbl_bg);
+//		add(lbl_bg);
 //		lbl_enemy.setVisible(myEnemy.getVisible());
-		lbl_prjct_player.setVisible(false);
+		lbl_prjct_player.setVisible(true);
 		lbl_prjct_enemy.setVisible(false);
 		
 		container1.addKeyListener(this);
@@ -216,15 +216,14 @@ public class GameScreen1 extends JFrame implements KeyListener{
 					prjct_player.launchPlayerProjectile();
 				}
 		}
-
 		myPlayer.setX(player_x);
 		lbl_player.setLocation(myPlayer.getX(), myPlayer.getY());
 		
-		//Update x-coordinate of player projectile ONLY IF not in already motion:
+		//Update x-coordinate of player projectile ONLY IF not already in motion:
 		if(prjct_player.getInMotion() == false) {
-			prjct_player.setX(player_x);
+			prjct_player.setX(player_x + (prjct_player.getHeight()/2));
 			prjct_player.setY(player_y);
-			lbl_prjct_player.setLocation(myPlayer.getX(), myPlayer.getY());
+			lbl_prjct_player.setLocation(prjct_player.getX(), prjct_player.getY());
 		}
 
 		//Update x-coordinate of enemy projectile ONLY IF not already in motion:

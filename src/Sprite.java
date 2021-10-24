@@ -28,7 +28,7 @@ public class Sprite {
 	public void setFileName(String fileName) {this.fileName = fileName;}
 	
 	public Boolean getInMotion() {return inMotion;}
-	public void setMoving(Boolean moving) {this.inMotion = moving;}
+	public void setInMotion(Boolean moving) {this.inMotion = moving;}
 	
 	public Boolean getVisible() {return visible;}
 	public void setVisible(Boolean visible) {this.visible = visible;}

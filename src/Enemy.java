@@ -4,7 +4,7 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 	
 	private Thread thread;
 	private JLabel lbl_enemy;
-	private Enemy[][] enemies;
+//	private Enemy[][] enemies;
 	private Player myPlayer;
 	private ProjectileEnemy enemyProjectile;
 	
@@ -13,15 +13,23 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 	
 	public JLabel getLbl_enemy() {return lbl_enemy;}
 	public void setLbl_enemy(JLabel lbl_enemy) {this.lbl_enemy = lbl_enemy;}
+	
+	
 
+	public Thread getThread() {
+		return thread;
+	}
+	public void setThread(Thread thread) {
+		this.thread = thread;
+	}
 	//Constructors:
 	public Enemy() {
-		super(50, 50, "img_invader1.gif", true, true, false);
+		super(GameProperties.ENEMY_WIDTH, GameProperties.ENEMY_HEIGHT, "img_invader1.gif", true, true, false);
 		this.enemyProjectile = new ProjectileEnemy();
 	}
 	
 	public Enemy(int temp1, int temp2, JLabel temp3, Player temp4) {
-		super(50, 50, "img_invader1.gif", true, true, false);
+		super(GameProperties.ENEMY_WIDTH, GameProperties.ENEMY_HEIGHT, "img_invader1.gif", true, true, false);
 		this.enemyProjectile = new ProjectileEnemy();
 		this.x = temp1;
 		this.y = temp2;
@@ -32,20 +40,22 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 	//Other methods:
 	@Override
 	public void hide() {
-		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				enemies[i][j].setVisible(false);
-			}
-		}
+		this.lbl_enemy.setVisible(false);
+//		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+//			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+//				enemies[i][j].setVisible(false);
+//			}
+//		}
 	}
 	
 	@Override
 	public void show() {
-		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				enemies[i][j].setVisible(true);
-			}
-		}
+		this.lbl_enemy.setVisible(true);
+//		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+//			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+//				enemies[i][j].setVisible(true);
+//			}
+//		}
 	}
 	
 	public void display() {
@@ -87,8 +97,8 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						try {
 							Thread.sleep(200);
 						}
-						catch(Exception e) {
-							
+						catch(InterruptedException e) {
+							System.out.println("InterruptedException occur");
 						}
 					}
 					
@@ -98,10 +108,6 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						this.setX(thread1_x);
 						this.setY(thread1_y);
 						this.getLbl_enemy().setLocation(this.getX(), this.getY());
-					}
-					else {
-						this.setGameOver(true);
-						this.gameOver();
 					}
 					
 					while((this.getInMotion() == true) && (thread1_x > 0)) {
@@ -113,8 +119,8 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						try {
 							Thread.sleep(200);
 						}
-						catch(Exception e) {
-							
+						catch(InterruptedException e) {
+							System.out.println("InterruptedException occur");
 						}
 					}
 					
@@ -125,11 +131,8 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						this.setY(thread1_y);
 						this.getLbl_enemy().setLocation(this.getX(), this.getY());
 					}
-					else {
-						this.setGameOver(true);
-						this.gameOver();
-					}
 				}
 		}
 	}
 }
+

@@ -15,13 +15,13 @@ public class Player extends Sprite {
 	
 	//Constructors:
 	public Player() {
-		super(50, 60, "img_player.png", false, true, false);
+		super(GameProperties.PLAYER_WIDTH, GameProperties.PLAYER_HEIGHT, "img_player.png", false, true, false);
 		canMove = true;
 		playerLives = 3;
 	}
 	
 	public Player(JLabel temp) {
-		super(50, 60, "img_player.png", false, true, false);
+		super(GameProperties.PLAYER_WIDTH, GameProperties.PLAYER_HEIGHT, "img_player.png", false, true, false);
 		this.lbl_player = temp;
 		canMove = true;
 		playerLives = 3;
