@@ -4,7 +4,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	
 	//Attributes:
 	private Thread thread;
-	private JLabel lbl_prjct_player;
+	private JLabel lbl_prjct_player, lbl_currentScore;
 	private Enemy[][] enemies;
 	private Boolean collision, keyPressed;
 	private Player myPlayer;
@@ -14,6 +14,9 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	
 	public Boolean getKeyPressed() {return keyPressed;}
 	public void setKeyPressed(Boolean keyPressed) {this.keyPressed = keyPressed;}
+	
+	public JLabel getLbl_currentScore() {return lbl_currentScore;}
+	public void setLbl_currentScore(JLabel lbl_currentScore) {this.lbl_currentScore = lbl_currentScore;}
 	
 	//When passing in arguments via setters, DO NOT alter or create new constructors for the argument - setter only!
 	public void setEnemies(Enemy[][] temp) {this.enemies = temp;}
@@ -29,10 +32,11 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	}
 	
 	//Secondary
-	public ProjectilePlayer(JLabel temp1, Player temp2) {
+	public ProjectilePlayer(JLabel temp1, Player temp2, JLabel temp3) {
 		super(GameProperties.PRJCT_PLAYER_WIDTH, GameProperties.PRJCT_PLAYER_HEIGHT, "img_prjct_player.png", false, false, false);
 		this.lbl_prjct_player = temp1;
 		this.myPlayer = temp2;
+		this.lbl_currentScore = temp3;
 		this.collision = false;
 		this.inMotion = false;
 		this.keyPressed = false;
@@ -70,10 +74,17 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		this.setKeyPressed(false);
 	}
 	
+	public void updatePlayerScore() {
+		myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY);
+		this.getLbl_currentScore().setText(String.valueOf(myPlayer.getPlayerScore()));
+		System.out.println(myPlayer.getPlayerScore());
+	}
+	
 	private void destroyEnemy(Enemy enemy) {
-		enemy.getThread().interrupt();
+		enemy.getHitbox().setSize(0, 0);
 		enemy.stop();
 		enemy.hide();
+		this.updatePlayerScore();
 	}
 	
 	private Boolean detectEnemyCollision() {

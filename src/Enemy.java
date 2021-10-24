@@ -97,8 +97,8 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						try {
 							Thread.sleep(200);
 						}
-						catch(InterruptedException e) {
-							System.out.println("InterruptedException occur");
+						catch(Exception e) {
+							
 						}
 					}
 					
@@ -119,8 +119,7 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 						try {
 							Thread.sleep(200);
 						}
-						catch(InterruptedException e) {
-							System.out.println("InterruptedException occur");
+						catch(Exception e) {
 						}
 					}
 					

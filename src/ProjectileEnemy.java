@@ -67,12 +67,12 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 			lbl_playerLives[myPlayer.getPlayerLives()].setVisible(false);
 			System.out.println("Player Lives Remaining: " + myPlayer.getPlayerLives());
 			
-			myPlayer.hitbox.setSize(0, 0);
+			myPlayer.getHitbox().setSize(0, 0);
 			myPlayer.setCanMove(false);
 			lbl_player.setIcon(new ImageIcon(getClass().getResource("img_explosion_player.gif")));
 			tmr_regeneratePlayer = new Timer(1500, new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					myPlayer.hitbox.setSize(myPlayer.getWidth(), myPlayer.getHeight());
+					myPlayer.getHitbox().setSize(myPlayer.getWidth(), myPlayer.getHeight());
 					myPlayer.setCanMove(true);
 					lbl_player.setIcon(new ImageIcon(getClass().getResource("img_player.png")));	
 				}

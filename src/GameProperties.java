@@ -5,6 +5,9 @@ public class GameProperties {
 	public static final int SCREEN_WIDTH = 800;
 	public static final int SCREEN_HEIGHT = 800;
 	
+	//Scoreboard:
+	public static final int SCORE_TXT_SIZE = 20;
+	
 	//# pixels sprites move upon trigger:
 	public static final int PLAYER_WIDTH = 50;
 	public static final int PLAYER_HEIGHT = 60;
@@ -22,6 +25,8 @@ public class GameProperties {
 	public static final int PRJCT_ENEMY_STEP = 30;
 	public static final int PRJCT_ENEMY_WIDTH = 25;
 	public static final int PRJCT_ENEMY_HEIGHT = 30;
+	
+	public static final int PTS_PER_ENEMY = 20;
 
 	//# rows & columns in ememy array:
 	public static final int ENEMY_ROWS = 4;

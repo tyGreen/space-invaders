@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -19,13 +20,10 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	private Background myBg;
 	
 	//JLabels to display sprites:
-	private JLabel lbl_player, lbl_prjct_player, lbl_prjct_enemy, lbl_bg;
+	private JLabel lbl_player, lbl_prjct_player, lbl_prjct_enemy, lbl_bg, lbl_score, lbl_currentScore;
 	private ImageIcon img_player, img_enemy, img_prjct_player, img_prjct_enemy, img_bg;
 	private JLabel[] lbl_playerLives;
-	
-//	//Button to control Enemy:
-//	private JButton btn_hideEnemy, btn_moveEnemy;
-	
+		
 	//Graphics container:
 	private Container container1;
 	
@@ -44,6 +42,18 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		lbl_player.setIcon(img_player);
 		lbl_player.setSize(myPlayer.getWidth(), myPlayer.getHeight());
 		
+		//SCOREBOARD:
+		//"SCORE" label:
+		lbl_score = new JLabel("SCORE");
+		lbl_score.setFont(new Font("Serif", Font.BOLD, GameProperties.SCORE_TXT_SIZE));
+		lbl_score.setForeground(Color.white);
+		lbl_score.setSize(70, GameProperties.SCORE_TXT_SIZE);
+		//Displays current score:
+		lbl_currentScore = new JLabel(String.valueOf(myPlayer.getPlayerScore()));
+		lbl_currentScore.setFont(new Font("Serif", Font.ITALIC, GameProperties.SCORE_TXT_SIZE));
+		lbl_currentScore.setForeground(Color.white);
+		lbl_currentScore.setSize(70, GameProperties.SCORE_TXT_SIZE);
+		
 		lbl_playerLives = new JLabel[3];
 		for(int i = 0; i < 3; i++) {
 			lbl_playerLives[i] = new JLabel();
@@ -60,7 +70,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			enemyOffsetX = 0;
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				enemies[i][j] = new Enemy((0 + enemyOffsetX), (0 + enemyOffsetY), new JLabel(), myPlayer);
+				enemies[i][j] = new Enemy((0 + enemyOffsetX), (GameProperties.ENEMY_HEIGHT + enemyOffsetY), new JLabel(), myPlayer);
 				enemies[i][j].moveEnemy();
 				img_enemy = new ImageIcon(getClass().getResource(enemies[i][j].getFileName()));
 				enemies[i][j].getLbl_enemy().setIcon(img_enemy);
@@ -73,17 +83,12 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		}
 		
 		lbl_prjct_player = new JLabel();
-		prjct_player = new ProjectilePlayer(lbl_prjct_player, myPlayer);
+		prjct_player = new ProjectilePlayer(lbl_prjct_player, myPlayer, lbl_currentScore);
 		img_prjct_player = new ImageIcon(getClass().getResource(prjct_player.getFileName()));
 		lbl_prjct_player.setIcon(img_prjct_player);
 		lbl_prjct_player.setSize(prjct_player.getWidth(), prjct_player.getHeight());
 		prjct_player.setLbl_prjct_player(lbl_prjct_player);
 		prjct_player.setEnemies(enemies);
-//		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-//			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-//				prjct_player.setLbl_enemy(enemies[i][j].getLbl_enemy());
-//			}
-//		}
 		
 		lbl_prjct_enemy = new JLabel();
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
@@ -103,7 +108,6 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		img_bg = new ImageIcon(getClass().getResource(myBg.getFileName()));
 		lbl_bg.setIcon(img_bg);
 		lbl_bg.setSize(myBg.getWidth(), myBg.getHeight());
-		
 
 		container1 = getContentPane();
 		container1.setBackground(Color.black);
@@ -131,6 +135,8 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		myBg.setY(0);
 		
 		//Update lbl positions to match stored values:
+		lbl_score.setLocation(15, 15);
+		lbl_currentScore.setLocation(15, (15 + GameProperties.SCORE_TXT_SIZE));
 		lbl_player.setLocation(myPlayer.getX(), myPlayer.getY());
 		int offset_playerLives = 0;
 		for(int i = 0; i < lbl_playerLives.length; i++) {
@@ -142,7 +148,6 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		int offset_enemyY = 0;
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			offset_enemyX = 0;
-//			int j;
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				enemies[i][j].getLbl_enemy().setLocation(enemies[i][j].getX() + offset_enemyX, enemies[i][j].getY() + offset_enemyY);
 				offset_enemyX += (enemies[i][j].getWidth() + GameProperties.ENEMY_SPACING);
@@ -159,6 +164,8 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		lbl_bg.setLocation(myBg.getX(), myBg.getY());
 		
 		//Add objects to screen:
+		add(lbl_score);
+		add(lbl_currentScore);
 		add(lbl_player);
 		for(int i = 0; i < lbl_playerLives.length; i++) {
 			this.add(lbl_playerLives[i]);
@@ -170,9 +177,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			}
 		}
 		add(lbl_prjct_enemy);
-//		add(lbl_bg);
-//		lbl_enemy.setVisible(myEnemy.getVisible());
-		lbl_prjct_player.setVisible(true);
+		lbl_prjct_player.setVisible(false);
 		lbl_prjct_enemy.setVisible(false);
 		
 		container1.addKeyListener(this);

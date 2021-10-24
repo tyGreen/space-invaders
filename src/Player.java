@@ -4,7 +4,7 @@ public class Player extends Sprite {
 	
 	private JLabel lbl_player;
 	private Boolean canMove;
-	private int playerLives;
+	private int playerLives, playerScore;
 	
 	//Getters & setters:
 	public Boolean getCanMove() {return canMove;}
@@ -13,11 +13,15 @@ public class Player extends Sprite {
 	public int getPlayerLives() {return playerLives;}
 	public void setPlayerLives(int playerLives) {this.playerLives = playerLives;}
 	
+	public int getPlayerScore() {return playerScore;}
+	public void setPlayerScore(int playerScore) {this.playerScore = playerScore;}
+	
 	//Constructors:
 	public Player() {
 		super(GameProperties.PLAYER_WIDTH, GameProperties.PLAYER_HEIGHT, "img_player.png", false, true, false);
 		canMove = true;
 		playerLives = 3;
+		playerScore = 0;
 	}
 	
 	public Player(JLabel temp) {
@@ -25,6 +29,7 @@ public class Player extends Sprite {
 		this.lbl_player = temp;
 		canMove = true;
 		playerLives = 3;
+		playerScore = 0;
 	}
 	
 	//Other methods
