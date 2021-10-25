@@ -81,10 +81,18 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	}
 	
 	private void destroyEnemy(Enemy enemy) {
+		enemy.getThread().interrupt();
 		enemy.getHitbox().setSize(0, 0);
 		enemy.stop();
 		enemy.hide();
 		this.updatePlayerScore();
+		if(enemy.getThread().isAlive()) {
+			System.out.println("Thread is alive");
+		}
+		else {
+			System.out.println("Thread is NOT alive...");
+
+		}
 	}
 	
 	private Boolean detectEnemyCollision() {
@@ -149,7 +157,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 					break;
 				}
 				try {
-					Thread.sleep(200);
+					Thread.sleep(25);
 				}
 				catch(Exception e) {
 					

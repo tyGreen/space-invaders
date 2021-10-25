@@ -80,57 +80,55 @@ public class Enemy extends Sprite implements Runnable { //Runnable -> threading 
 
 	@Override
 	public void run() { 
-		while(true) {
-				//Get current x,y:
-				int thread1_x = this.x;
-				int thread1_y = this.y;
-//				int offset_enemyX = 0;
-//				int offset_enemyY = 0;
-
-				while(!this.getGameOver()) {
-					while((this.getInMotion() == true) && (thread1_x + this.width + GameProperties.ENEMY_STEP) < GameProperties.SCREEN_WIDTH) {
-						//Move right:
-						thread1_x += GameProperties.ENEMY_STEP;
-						this.setX(thread1_x);
-						this.setY(thread1_y);
-						this.getLbl_enemy().setLocation(this.getX(), this.getY());
-						try {
-							Thread.sleep(200);
-						}
-						catch(Exception e) {
-							
-						}
-					}
+		while(this.getThread().isAlive()) {
+			//Get current x,y:
+			int thread1_x = this.x;
+			int thread1_y = this.y;
+			while(this.getInMotion()) {
+				while((thread1_x + this.width + GameProperties.ENEMY_STEP) < GameProperties.SCREEN_WIDTH) {
 					
-					if((thread1_y + this.getHeight()) <= myPlayer.getY()) {
-						//Drop enemies down one row when they reach right wall:
-						thread1_y += this.getHeight();
-						this.setX(thread1_x);
-						this.setY(thread1_y);
-						this.getLbl_enemy().setLocation(this.getX(), this.getY());
+					//Move right:
+					thread1_x += GameProperties.ENEMY_STEP;
+					this.setX(thread1_x);
+					this.setY(thread1_y);
+					this.getLbl_enemy().setLocation(this.getX(), this.getY());
+					try {
+						Thread.sleep(200);
 					}
-					
-					while((this.getInMotion() == true) && (thread1_x > 0)) {
-						//Move left:
-						thread1_x -= GameProperties.ENEMY_STEP;
-						this.setX(thread1_x);
-						this.setY(thread1_y);
-						this.getLbl_enemy().setLocation(this.getX(), this.getY());
-						try {
-							Thread.sleep(200);
-						}
-						catch(Exception e) {
-						}
-					}
-					
-					if((thread1_y + this.getHeight()) <= myPlayer.getY()) {
-						//Drop enemies down one row when they reach left wall:
-						thread1_y += this.getHeight();
-						this.setX(thread1_x);
-						this.setY(thread1_y);
-						this.getLbl_enemy().setLocation(this.getX(), this.getY());
+					catch(Exception e) {
+						
 					}
 				}
+				
+				if((thread1_y + this.getHeight()) <= myPlayer.getY()) {
+					//Drop enemies down one row when they reach right wall:
+					thread1_y += this.getHeight();
+					this.setX(thread1_x);
+					this.setY(thread1_y);
+					this.getLbl_enemy().setLocation(this.getX(), this.getY());
+				}
+				
+				while((thread1_x > 0)) {
+					//Move left:
+					thread1_x -= GameProperties.ENEMY_STEP;
+					this.setX(thread1_x);
+					this.setY(thread1_y);
+					this.getLbl_enemy().setLocation(this.getX(), this.getY());
+					try {
+						Thread.sleep(200);
+					}
+					catch(Exception e) {
+					}
+				}
+				
+				if((thread1_y + this.getHeight()) <= myPlayer.getY()) {
+					//Drop enemies down one row when they reach left wall:
+					thread1_y += this.getHeight();
+					this.setX(thread1_x);
+					this.setY(thread1_y);
+					this.getLbl_enemy().setLocation(this.getX(), this.getY());
+				}
+			}
 		}
 	}
 }

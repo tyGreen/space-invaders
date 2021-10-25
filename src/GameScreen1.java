@@ -80,6 +80,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 					enemyOffsetY += enemies[i][j].getHeight();
 				}
 			}
+			
 		}
 		
 		lbl_prjct_player = new JLabel();
@@ -189,7 +190,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	public static void main(String args[]) { 
 		GameScreen1 myGameScreen = new GameScreen1();
 		myGameScreen.setVisible(true); 
-		myGameScreen.prjct_enemy.startEnemyProjectileThread();
+		myGameScreen.prjct_enemy.startEnemyProjectileThread();	
 	}
 
 	@Override

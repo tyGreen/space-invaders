@@ -104,7 +104,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 				}
 				
 				try {
-					Thread.sleep(200);
+					Thread.sleep(90);
 				}
 				catch(Exception e) {
 					
