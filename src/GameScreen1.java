@@ -70,17 +70,39 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			enemyOffsetX = 0;
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				enemies[i][j] = new Enemy((0 + enemyOffsetX), (GameProperties.ENEMY_HEIGHT + enemyOffsetY), new JLabel(), myPlayer);
-				enemies[i][j].moveEnemy();
+				enemies[i][j] = new Enemy((0 + enemyOffsetX), (GameProperties.ENEMY_HEIGHT + enemyOffsetY), new JLabel(), myPlayer, enemies);
 				img_enemy = new ImageIcon(getClass().getResource(enemies[i][j].getFileName()));
 				enemies[i][j].getLbl_enemy().setIcon(img_enemy);
 				enemies[i][j].getLbl_enemy().setSize(enemies[i][j].getWidth(), enemies[i][j].getHeight());			
 				enemyOffsetX += (enemies[i][j].getWidth() + GameProperties.ENEMY_SPACING);
-				if(j == (GameProperties.ENEMY_COLS - 1)) {
-					enemyOffsetY += enemies[i][j].getHeight();
+				// If this is the first enemy in the first row (top left corner):
+				if((i == 0) && (j == 0)) {
+					// It is the left bumper:
+					enemies[i][j].setIsLeftBumper(true);
+					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 				}
-			}
+				// Else, if this is the last enemy in the first row (top right corner):
+				else if((i == 0) && (j == GameProperties.ENEMY_COLS - 1)) {
+					// It is the right bumper:
+					enemies[i][j].setIsRightBumper(true);
+					// Get focus first because enemies move to right first:
+					enemies[i][j].setHasFocus(true);
+					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+					
+				}
+				// Else, if this enemy is the first in the last row (bottom left corner):
+				else if((i == (GameProperties.ENEMY_ROWS - 1)) && (j == 0)) {
+					// Set "bumper" flag to true:
+					enemies[i][j].setIsBottomBumper(true);
+					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+				}
 			
+				// If this enemy is the last in its row:
+				if(j == GameProperties.ENEMY_COLS - 1) {
+				// Start positioning enemies on next row:
+				enemyOffsetY += enemies[i][j].getHeight();
+				}
+			}	
 		}
 		
 		lbl_prjct_player = new JLabel();
@@ -191,6 +213,11 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		GameScreen1 myGameScreen = new GameScreen1();
 		myGameScreen.setVisible(true); 
 		myGameScreen.prjct_enemy.startEnemyProjectileThread();	
+		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+				myGameScreen.enemies[i][j].moveEnemy();
+			}
+		}
 	}
 
 	@Override
