@@ -1,3 +1,4 @@
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public class ProjectilePlayer extends Sprite implements Runnable {
@@ -80,19 +81,128 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		System.out.println(myPlayer.getPlayerScore());
 	}
 	
+	public void reassignRightBumper(Enemy enemy) {
+		// Store enemy array in "enemies" variable:
+		Enemy[][] enemies = enemy.getEnemies();
+		//int currentRightBumperRow = 0;
+		int currentRightBumperCol;
+		// Get this enemy's position (row & column #):
+		OUTER:
+		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+				// If right bumper found:
+				if(enemies[i][j].getIsRightBumper()) {
+					//currentRightBumperRow = i;
+					currentRightBumperCol = j;
+					// Set right bumper flag to false:
+					enemy.setIsRightBumper(false);
+					// Find the next in-motion (not destroyed) enemy to left of old right bumper:
+					for(j = currentRightBumperCol - 1; j >= 0; j--) {
+						// If enemy in motion (not destroyed)						
+						if(enemies[i][j].getInMotion()) {
+							// Becomes the next right bumper:
+							enemies[i][j].setIsRightBumper(true);
+							enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+							break OUTER;
+						}
+						else {
+							// GAME OVER
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	public void reassignBottomBumper(Enemy enemy) {
+		System.out.println("Bottom dead :( ");
+		// Store enemy array in "enemies" variable:
+		Enemy[][] enemies = enemy.getEnemies();
+		int currentBottomBumperRow = 0;
+		int currentBottomBumperCol = 0;
+		// Get this enemy's position (row & column #):
+		OUTER:
+		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+				// If right bumper found:
+				if(enemies[i][j].getIsBottomBumper()) {
+					currentBottomBumperRow = i;
+					currentBottomBumperCol = j;
+					
+					// Set right bumper flag to false:
+					enemy.setIsBottomBumper(false);
+					// Find the next in-motion (not destroyed) enemy to left of old right bumper:
+					for(i = currentBottomBumperRow; i >= 0; i--) {
+						for(j = currentBottomBumperCol; j < GameProperties.ENEMY_COLS; j++) {
+							// If enemy in motion (not destroyed)						
+							if(enemies[i][j].getInMotion()) {
+								// Becomes the next right bumper:
+								enemies[i][j].setIsBottomBumper(true);
+								enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+								break OUTER;
+							}
+							else {
+								// GAME OVER
+							}
+						}
+						currentBottomBumperCol = 0;
+					}
+				}
+			}
+		}
+	}
+	
+	public void reassignLeftBumper(Enemy enemy) {
+		// Store enemy array in "enemies" variable:
+		Enemy[][] enemies = enemy.getEnemies();
+		//int currentRightBumperRow = 0;
+		int currentLeftBumperCol;
+		// Get this enemy's position (row & column #):
+		OUTER:
+		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+				// If right bumper found:
+				if(enemies[i][j].getIsLeftBumper()) {
+					//currentRightBumperRow = i;
+					currentLeftBumperCol = j;
+					// Set right bumper flag to false:
+					enemy.setIsLeftBumper(false);
+					// Find the next in-motion (not destroyed) enemy to left of old right bumper:
+					for(j = currentLeftBumperCol + 1; j < GameProperties.ENEMY_COLS; j++) {
+						// If enemy in motion (not destroyed)						
+						if(enemies[i][j].getInMotion()) {
+							// Becomes the next right bumper:
+							enemies[i][j].setIsLeftBumper(true);
+							enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+							break OUTER;
+						}
+						else {
+							// GAME OVER
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	private void destroyEnemy(Enemy enemy) {
-		enemy.getThread().interrupt();
-		enemy.getHitbox().setSize(0, 0);
 		enemy.stop();
+
+		// If enemy has bumper flag set, reassign it:
+		if(enemy.getIsRightBumper()) {
+			reassignRightBumper(enemy);	
+		}
+		else if(enemy.getIsBottomBumper()) {
+			reassignBottomBumper(enemy);
+			
+		}
+		else if(enemy.getIsLeftBumper()) {
+			reassignLeftBumper(enemy);
+		}
+		
+		enemy.getHitbox().setSize(0, 0);
 		enemy.hide();
 		this.updatePlayerScore();
-		if(enemy.getThread().isAlive()) {
-			System.out.println("Thread is alive");
-		}
-		else {
-			System.out.println("Thread is NOT alive...");
-
-		}
 	}
 	
 	private Boolean detectEnemyCollision() {

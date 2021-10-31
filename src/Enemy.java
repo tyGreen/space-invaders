@@ -20,6 +20,14 @@ public class Enemy extends Sprite implements Runnable {
 	public Thread getThread() {return thread;}
 	public void setThread(Thread thread) {this.thread = thread;}
 	
+	
+	
+	public Enemy[][] getEnemies() {
+		return enemies;
+	}
+	public void setEnemies(Enemy[][] enemies) {
+		this.enemies = enemies;
+	}
 	public Boolean getHasFocus() {
 		return hasFocus;
 	}
