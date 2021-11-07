@@ -98,23 +98,18 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 		while(this.myEnemy.getInMotion() == true) {
 			while(this.myEnemy.getCanShoot()) {
 				// Generate two random ints:
-				int randomInt1 = (int)(Math.random() * 100000 + 1);
-				int randomInt2 = (int)(Math.random() * 100000 + 1);
+				int randomInt1 = (int)(Math.random() * 999999999 + 1);
+				int randomInt2 = (int)(Math.random() * 999999999 + 1);
 				// If ints match:
 				if(randomInt1 == randomInt2) {
-					// Enemy launches projectile:
-					int thread1_x = this.myEnemy.getX();
-					int thread1_y = this.myEnemy.getY();
-					this.setCollision(false);
-					while(thread1_y < GameProperties.SCREEN_HEIGHT && this.getCollision() == false) {
+					// While project within bounds && collision flag is false:
+					while((this.getY() < GameProperties.SCREEN_HEIGHT) && this.getCollision() == false) {
+						// Launch projectile toward player:
 						this.move();
 						this.show(); //overridden to do same as lbl_prjct_enemy.setVisible(true);
-						thread1_y += GameProperties.PRJCT_ENEMY_STEP;
-						this.setX(thread1_x);
-						this.setY(thread1_y);
+						this.setY(this.getY() + GameProperties.PRJCT_ENEMY_STEP);
 						lbl_prjct_enemy.setLocation(this.x, this.y);
 						this.detectPlayerCollision();
-						
 						//Check player lives to determine if game should continue:
 						if(myPlayer.getPlayerLives() == 0) {
 							this.setGameOver(true);
