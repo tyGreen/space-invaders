@@ -4,9 +4,10 @@ public class Enemy extends Sprite implements Runnable {
 	
 	private Thread thread;
 	private JLabel lbl_enemy;
+	private JLabel[] lbl_playerLives;
 	private Player myPlayer;
 	private ProjectileEnemy enemyProjectile;
-	private Boolean isRightBumper, isLeftBumper, isBottomBumper, hasFocus;
+	private Boolean isRightBumper, isLeftBumper, isBottomBumper, hasFocus, gameOver, canShoot;
 		// Flag to track if enemy's position within array is located on the perimeter 
 		// (i.e. will it be one of the first enemies to reach a wall or the ground?)
 	private Enemy[][] enemies;
@@ -20,8 +21,12 @@ public class Enemy extends Sprite implements Runnable {
 	public Thread getThread() {return thread;}
 	public void setThread(Thread thread) {this.thread = thread;}
 	
-	
-	
+	public Boolean getGameOver() {
+		return gameOver;
+	}
+	public void setGameOver(Boolean gameOver) {
+		this.gameOver = gameOver;
+	}
 	public Enemy[][] getEnemies() {
 		return enemies;
 	}
@@ -52,28 +57,37 @@ public class Enemy extends Sprite implements Runnable {
 	public void setIsBottomBumper(Boolean isBottomBumper) {
 		this.isBottomBumper = isBottomBumper;
 	}
+	
+	public Boolean getCanShoot() {return canShoot;}
+	public void setCanShoot(Boolean canShoot) {this.canShoot = canShoot;}
+	
 	//Constructors:
 	public Enemy() {
 		super(GameProperties.ENEMY_WIDTH, GameProperties.ENEMY_HEIGHT, "img_invader1.gif", true, true, false);
-		this.enemyProjectile = new ProjectileEnemy();
+		this.enemyProjectile = new ProjectileEnemy(this, this.lbl_playerLives, this.myPlayer);
 		this.isRightBumper = false;
 		this.isLeftBumper = false;
 		this.isBottomBumper = false;
 		this.hasFocus = false;
+		this.gameOver = false;
+		this.canShoot = false;
 	}
 	
-	public Enemy(int temp1, int temp2, JLabel temp3, Player temp4, Enemy[][] temp5) {
+	public Enemy(int temp1, int temp2, JLabel temp3, Player temp4, Enemy[][] temp5, JLabel[] temp6) {
 		super(GameProperties.ENEMY_WIDTH, GameProperties.ENEMY_HEIGHT, "img_invader1.gif", true, true, false);
 		this.x = temp1;
 		this.y = temp2;
 		this.lbl_enemy = temp3;
 		this.myPlayer = temp4;
 		this.enemies = temp5;
-		this.enemyProjectile = new ProjectileEnemy();
+		this.lbl_playerLives = temp6;
+		this.enemyProjectile = new ProjectileEnemy(this, this.lbl_playerLives, this.myPlayer);
 		this.isRightBumper = false;
 		this.isLeftBumper = false;
 		this.isBottomBumper = false;
 		this.hasFocus = false;
+		this.gameOver = false;
+		this.canShoot = false;
 	}
 	
 	//Other methods:
@@ -84,17 +98,17 @@ public class Enemy extends Sprite implements Runnable {
 	public void show() {this.lbl_enemy.setVisible(true);}
 	
 	public void display() {System.out.println("x,y / visible?: " + this.x + "," + this.y + " / " + this.visible);}
-
-	public void moveEnemy() {
-		this.thread = new Thread(this, "Enemey Thread");
-		this.thread.start(); //Triggers/starts the thread
-	}
 	
 	public void moveEnemiesRight(Enemy[][] array) {
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				array[i][j].setX(array[i][j].getX() + GameProperties.ENEMY_STEP);
 				array[i][j].getLbl_enemy().setLocation(array[i][j].getX(), array[i][j].getY());
+				// Enemey's projectile must move with it (if not in motion):
+				if(!array[i][j].getEnemyProjectile().getInMotion()) {
+					array[i][j].getEnemyProjectile().setX(array[i][j].getX());
+					array[i][j].getEnemyProjectile().getLbl_prjct_enemy().setLocation(array[i][j].getX(), array[i][j].getY());
+				}
 			}
 		}
 	}
@@ -104,6 +118,11 @@ public class Enemy extends Sprite implements Runnable {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				array[i][j].setY(array[i][j].getY() + array[i][j].getHeight());
 				array[i][j].getLbl_enemy().setLocation(array[i][j].getX(), array[i][j].getY());
+				if(!array[i][j].getEnemyProjectile().getInMotion()) {
+					array[i][j].getEnemyProjectile().setY(array[i][j].getY());
+					array[i][j].getEnemyProjectile().getLbl_prjct_enemy().setLocation(array[i][j].getX(), array[i][j].getY());	
+
+				}
 			}
 		}
 	}
@@ -113,10 +132,19 @@ public class Enemy extends Sprite implements Runnable {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				array[i][j].setX(array[i][j].getX() - GameProperties.ENEMY_STEP);
 				array[i][j].getLbl_enemy().setLocation(array[i][j].getX(), array[i][j].getY());
+				if(!array[i][j].getEnemyProjectile().getInMotion()) {
+					array[i][j].getEnemyProjectile().setX(array[i][j].getX());
+					array[i][j].getEnemyProjectile().getLbl_prjct_enemy().setLocation(array[i][j].getX(), array[i][j].getY());
+				}
 			}
 		}
 	}
-
+	
+	public void moveEnemy() {
+		this.thread = new Thread(this, "Enemey Thread");
+		this.thread.start(); //Triggers/starts the thread
+	}
+	
 	@Override
 	public void run() { 
 		// Master loop - when this ends, thread dies:
@@ -194,12 +222,15 @@ public class Enemy extends Sprite implements Runnable {
 							}
 						}	
 					}
+					else {
+						this.setGameOver(true);
+					}
 				}
 				
 				// While enemy has LEFT bumper flag set:
 				if(this.getIsLeftBumper()) {
 					// While LEFT bumper has room to move left:
-					while( (this.getX() - GameProperties.ENEMY_STEP) > 0) {
+					while(this.getX() - GameProperties.ENEMY_STEP > 0) {
 						// Move all enemies down
 						moveEnemiesLeft(this.enemies);
 						try {
@@ -211,29 +242,47 @@ public class Enemy extends Sprite implements Runnable {
 					}
 					// Focus shifts from this enemy to enemy with BOTTOM bumper flag set:
 					this.setHasFocus(false);
-					// Iterate through array to find enemy with BOTTOM bumper flag set:
-					for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-						for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-							if(enemies[i][j].getIsBottomBumper()) {
-								enemies[i][j].setHasFocus(true);
+					if(GameProperties.ENEMY_COUNT > 1) {
+						// Iterate through array to find enemy with BOTTOM bumper flag set:
+						for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+							for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+								if(enemies[i][j].getIsBottomBumper()) {
+									enemies[i][j].setHasFocus(true);
+								}
 							}
 						}
 					}
-				}		
+					// Otherwise, only 1 enemy left:
+					else {
+						// If it has room to move down:
+						if((this.getY() + this.getHeight()) <= myPlayer.getY()) {
+							// Move enemy down one line before next iteration of move sequence loop:
+							this.moveEnemiesDown(enemies);
+							this.setHasFocus(false);
+							try {
+								Thread.sleep(200);
+							}
+							catch(Exception e) {
+								
+							}
+						}
+						else {
+							this.setGameOver(true);
+						}
+					}
+				}
 			}
-			
+				
 			// While this enemy DOESN'T have focus:
 			while(!this.getHasFocus()) {
-				// Loop to keep enemy threads alive when they don't have focus.
-				// Will break out of this loop if focus flag is set or enemy is destroyed
-				// (no longer in motion)
+
 				try {
 					Thread.sleep(200);
 				}
 				catch(Exception e) {
 					
 				}
-			}
-		}
+			}	
+		} 
 	}
 }

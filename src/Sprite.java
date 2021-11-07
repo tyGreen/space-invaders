@@ -1,15 +1,11 @@
 import java.awt.Rectangle;
 
-import javax.swing.JOptionPane;
-
 //Base class for all game sprites
 public class Sprite {
 	protected int x, y, width, height;
-		//x & y -> upper left COORDINATES of object
-		//width & height -> SIZE of object
 	protected String fileName;
 	protected Rectangle hitbox;
-	protected Boolean inMotion, visible, gameOver;
+	protected Boolean inMotion, visible;
 	
 	//Getters & setters:
 	public int getX() {return x;}
@@ -33,9 +29,6 @@ public class Sprite {
 	public Boolean getVisible() {return visible;}
 	public void setVisible(Boolean visible) {this.visible = visible;}
 	
-	public Boolean getGameOver() {return gameOver;}
-	public void setGameOver(Boolean gameOver) {this.gameOver = gameOver;}
-	
 	public Rectangle getHitbox() {return hitbox;}
 //	public void setHitbox(Rectangle hitbox) {this.hitbox = hitbox;}
 	
@@ -49,7 +42,6 @@ public class Sprite {
 		this.fileName = "";
 		this.inMotion = false;
 		this.visible = false;
-		this.gameOver = false;
 		this.hitbox = new Rectangle(this.x, this.y, this.width, this.height);
 	}
 	
@@ -64,7 +56,6 @@ public class Sprite {
 		this.fileName = fileName;
 		this.inMotion = moving;
 		this.visible = visible;
-		this.gameOver = gameOver;
 		this.hitbox = new Rectangle(this.x, this.y, this.width, this.height);
 	}
 	
@@ -78,7 +69,6 @@ public class Sprite {
 		this.fileName = fileName;
 		this.inMotion = moving;
 		this.visible = visible;
-		this.gameOver = false;
 		this.hitbox = new Rectangle(this.x, this.y, this.width, this.height);
 	}
 	
@@ -92,11 +82,4 @@ public class Sprite {
 	public void stop( ) {this.inMotion = false;}
 	public void hide() {this.visible = false;}
 	public void show() {this.visible = true;}
-	
-	public void gameOver() {
-		this.gameOver = true;
-		this.stop();
-		JOptionPane.showMessageDialog(null, "GAME OVER");
-		System.exit(0);
-	}
 }
