@@ -66,26 +66,41 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 		lbl_prjct_enemy.setVisible(true);
 	}
 	
-	private void detectPlayerCollision() {
+	private boolean detectPlayerCollision() {
 		if(this.hitbox.intersects(myPlayer.getHitbox())) {
 			this.setCollision(true);
+			this.hide();
+			this.returnToEnemy();
 			
-			myPlayer.setPlayerLives(myPlayer.getPlayerLives() - 1);
-			lbl_playerLives[myPlayer.getPlayerLives()].setVisible(false);
-			System.out.println("Player Lives Remaining: " + myPlayer.getPlayerLives());
-			
+			// Disable player's hitbox:
 			myPlayer.getHitbox().setSize(0, 0);
+			
+			// Disable player's ability to move:
 			myPlayer.setCanMove(false);
+			
+			// Set player sprite to explosion:
 			lbl_player.setIcon(new ImageIcon(getClass().getResource("img_explosion_player.gif")));
+			
+			// After delay of 1.5 seconds:
 			tmr_regeneratePlayer = new Timer(1500, new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					// Restore player hitbox:
 					myPlayer.getHitbox().setSize(myPlayer.getWidth(), myPlayer.getHeight());
+					// Restore player movement:
 					myPlayer.setCanMove(true);
+					// Restore player sprite:
 					lbl_player.setIcon(new ImageIcon(getClass().getResource("img_player.png")));	
 				}
 			});
 			tmr_regeneratePlayer.start();	
 		}
+		return true;
+	}
+	
+	public void returnToEnemy() {
+		this.setX(this.myEnemy.getX());
+		this.setY(this.myEnemy.getY());
+		this.getLbl_prjct_enemy().setLocation(this.getX(), this.getY());
 	}
 	
 	public void startEnemyProjectileThread() {
@@ -95,11 +110,11 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	
 	@Override
 	public void run() {
-		while(this.myEnemy.getInMotion() == true) {
+		while(this.myEnemy.getInMotion()) {
 			while(this.myEnemy.getCanShoot()) {
 				// Generate two random ints:
-				int randomInt1 = (int)(Math.random() * 999999999 + 1);
-				int randomInt2 = (int)(Math.random() * 999999999 + 1);
+				int randomInt1 = (int)(Math.random() * 999999 + 1);
+				int randomInt2 = (int)(Math.random() * 999999 + 1);
 				// If ints match:
 				if(randomInt1 == randomInt2) {
 					// While project within bounds && collision flag is false:
@@ -109,14 +124,22 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 						this.show(); //overridden to do same as lbl_prjct_enemy.setVisible(true);
 						this.setY(this.getY() + GameProperties.PRJCT_ENEMY_STEP);
 						lbl_prjct_enemy.setLocation(this.x, this.y);
-						this.detectPlayerCollision();
-						//Check player lives to determine if game should continue:
-						if(myPlayer.getPlayerLives() == 0) {
-							this.setGameOver(true);
+						if(detectPlayerCollision()) {
+							if(myPlayer.getPlayerLives() > 0) {
+								myPlayer.setPlayerLives(myPlayer.getPlayerLives() - 1);
+							}
+							lbl_playerLives[myPlayer.getPlayerLives()].setVisible(false);
+							System.out.println("Player Lives Remaining: " + myPlayer.getPlayerLives());
+							
+							// If player lives = 0:
+							if(myPlayer.getPlayerLives() == 0) {
+								// Game over:
+								this.setGameOver(true);
+							}
+							break;
 						}
-						
 						try {
-							Thread.sleep(90);
+							Thread.sleep(200);
 						}
 						catch(Exception e) {
 							
