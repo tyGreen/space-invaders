@@ -36,6 +36,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	//When passing in arguments via setters, DO NOT alter or create new constructors for the argument - setter only!
 	public void setPlayer(Player temp) {this.myPlayer = temp;}
 	public void setLbl_player(JLabel temp) {this.lbl_player = temp;}
+	public void setEnemy(Enemy temp) {this.myEnemy = temp;}
 
 	//Constructors:
 	//Default
@@ -61,46 +62,85 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	public void hide() {
 		lbl_prjct_enemy.setVisible(false);
 	}
+	
 	@Override
 	public void show() {
 		lbl_prjct_enemy.setVisible(true);
 	}
 	
-	private boolean detectPlayerCollision() {
-		if(this.hitbox.intersects(myPlayer.getHitbox())) {
-			this.setCollision(true);
-			this.hide();
-			this.returnToEnemy();
-			
-			// Disable player's hitbox:
-			myPlayer.getHitbox().setSize(0, 0);
-			
-			// Disable player's ability to move:
-			myPlayer.setCanMove(false);
-			
-			// Set player sprite to explosion:
-			lbl_player.setIcon(new ImageIcon(getClass().getResource("img_explosion_player.gif")));
-			
-			// After delay of 1.5 seconds:
-			tmr_regeneratePlayer = new Timer(1500, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					// Restore player hitbox:
-					myPlayer.getHitbox().setSize(myPlayer.getWidth(), myPlayer.getHeight());
-					// Restore player movement:
-					myPlayer.setCanMove(true);
-					// Restore player sprite:
-					lbl_player.setIcon(new ImageIcon(getClass().getResource("img_player.png")));	
-				}
-			});
-			tmr_regeneratePlayer.start();	
-		}
-		return true;
+	public void launchProjectile() {
+		// Make projectile (label) visisble:
+		this.lbl_prjct_enemy.setVisible(true);
+		// Set its "in motion" flag to true (required to prevent X-coordinate from syncing w/ enemies while launching):
+		this.setInMotion(true);
+		// Update projectile's Y-coordinate (+20px south):
+		this.setY(this.y + GameProperties.PRJCT_PLAYER_STEP);
+		// Update label to match new coordinate(s):
+		this.lbl_prjct_enemy.setLocation(this.x, this.y);
 	}
 	
-	public void returnToEnemy() {
+	public void resetProjectile() {
+		// Hide the projectile (label):
+		this.lbl_prjct_enemy.setVisible(false);
+		// Set "in motion" flag to false (important so coordinates can sync w/ corresponding enemy):
+		this.setInMotion(false);
 		this.setX(this.myEnemy.getX());
 		this.setY(this.myEnemy.getY());
-		this.getLbl_prjct_enemy().setLocation(this.getX(), this.getY());
+		this.lbl_prjct_enemy.setLocation(this.x, this.y);
+	}
+	
+	public boolean collisionDetected() {
+		if(this.hitbox.intersects(this.myPlayer.getHitbox())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public void subtractPlayerLife() {
+		if(this.myPlayer.getPlayerLives() > 0) {
+			this.myPlayer.setPlayerLives(this.myPlayer.getPlayerLives() - 1);
+			// Update player lives label to reflect current # player lives remaining:
+			this.lbl_playerLives[this.myPlayer.getPlayerLives()].setVisible(false);
+		}
+		// Otherwise, player lives must be at 0:
+		else {
+			// Set the enemy projectile's "game over" flag to true for detection by game screen:
+			this.setGameOver(true);
+		}
+	}
+	
+	public void resetPlayer() {
+		// Disable player hitbox:
+		myPlayer.getHitbox().setSize(0, 0);
+		// Disable player movement (& by extension, ability to shoot):
+		myPlayer.setCanMove(false);
+		// Set player icon to explosion:
+		myPlayer.getLbl_player().setIcon(new ImageIcon(getClass().getResource("img_explosion_player.gif")));
+		// After delay of 1.5 seconds:
+		tmr_regeneratePlayer = new Timer(1500, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Restore the hitbox, key controls, & icon:
+				myPlayer.getHitbox().setSize(myPlayer.getWidth(), myPlayer.getHeight());
+				myPlayer.setCanMove(true);
+				myPlayer.getLbl_player().setIcon(new ImageIcon(getClass().getResource("img_player.png")));	
+			}
+		});
+		tmr_regeneratePlayer.start();
+	}
+	
+	public boolean enemyWillShoot() {
+		// Generates two random integers between 1 & 999 :
+		int randomInt1 = (int)(Math.random() * 50 + 1);
+		int randomInt2 = (int)(Math.random() * 50 + 1);
+		// If integers match:
+		if(randomInt1 == randomInt2) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	public void startEnemyProjectileThread() {
@@ -110,43 +150,52 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	
 	@Override
 	public void run() {
-		while(this.myEnemy.getInMotion()) {
-			while(this.myEnemy.getCanShoot()) {
-				// Generate two random ints:
-				int randomInt1 = (int)(Math.random() * 999999 + 1);
-				int randomInt2 = (int)(Math.random() * 999999 + 1);
-				// If ints match:
-				if(randomInt1 == randomInt2) {
-					// While project within bounds && collision flag is false:
-					while((this.getY() < GameProperties.SCREEN_HEIGHT) && this.getCollision() == false) {
-						// Launch projectile toward player:
-						this.move();
-						this.show(); //overridden to do same as lbl_prjct_enemy.setVisible(true);
-						this.setY(this.getY() + GameProperties.PRJCT_ENEMY_STEP);
-						lbl_prjct_enemy.setLocation(this.x, this.y);
-						if(detectPlayerCollision()) {
-							if(myPlayer.getPlayerLives() > 0) {
-								myPlayer.setPlayerLives(myPlayer.getPlayerLives() - 1);
-							}
-							lbl_playerLives[myPlayer.getPlayerLives()].setVisible(false);
-							System.out.println("Player Lives Remaining: " + myPlayer.getPlayerLives());
-							
-							// If player lives = 0:
-							if(myPlayer.getPlayerLives() == 0) {
-								// Game over:
-								this.setGameOver(true);
-							}
-							break;
-						}
-						try {
-							Thread.sleep(200);
-						}
-						catch(Exception e) {
-							
-						}
+		
+		// While the enemy that owns this projectile is moving (not destroyed) && can shoot:
+		while(this.myEnemy.getInMotion() && this.myEnemy.getCanShoot()) {
+			
+			// If RNG determines enemy will shoot:
+			if(enemyWillShoot()) {
+				
+				// While the projectile has room to move south without going out of bounds:
+				while((this.y + GameProperties.PRJCT_ENEMY_STEP) < GameProperties.SCREEN_HEIGHT) {
+					launchProjectile();
+					if(collisionDetected()) {
+						resetProjectile();
+						subtractPlayerLife();
+						resetPlayer();
+					}
+					try {
+						Thread.sleep(200);
+					}
+					catch(Exception e) {
+						
 					}
 				}
+				
+				// When projectile >= screen height (goes out of bounds):
+				// Reset location of enemy projectile back to its enemy's current location:
+				resetProjectile();	
+				try {
+					Thread.sleep(200);
+				}
+				catch(Exception e) {
+					
+				}
 			}
-		}
-	}
-}
+			try {
+				Thread.sleep(200);
+			}
+			catch(Exception e) {
+				
+			}
+		}	
+//		try {
+//			Thread.sleep(200);
+//		}
+//		catch(Exception e) {
+//			
+//		}
+	} // End run()
+	
+} // End ProjectileEnemy.java

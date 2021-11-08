@@ -16,7 +16,6 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	//Storage classes for game sprites:
 	private Player myPlayer;
 	private ProjectilePlayer prjct_player;
-	private ProjectileEnemy [][] enemyProjectiles;
 	private Enemy[][] enemies;
 	private Background myBg;
 	
@@ -205,9 +204,14 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	}
 	
 	public static void gameOver(GameScreen1 myGameScreen) {
-		// Stop the player:
+		// Stop the player & its projectile:
 		myGameScreen.myPlayer.stop();
-		// Stop each enemy:
+		myGameScreen.prjct_player.stop();
+		
+		// Hide player projectile:
+		myGameScreen.lbl_prjct_player.setVisible(false);
+
+		// Stop enemies & their projectiles, & hide enemy projectiles:
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				myGameScreen.enemies[i][j].stop();
@@ -216,11 +220,22 @@ public class GameScreen1 extends JFrame implements KeyListener{
 				myGameScreen.enemies[i][j].getEnemyProjectile().getLbl_prjct_enemy().setVisible(false);	
 			}
 		}
-		// Stop & hide projectiles:
-		myGameScreen.prjct_player.stop();
-		myGameScreen.lbl_prjct_player.setVisible(false);
+		
 		// Display "GAME OVER" msg & exit game:
 		JOptionPane.showMessageDialog(null, "GAME OVER");
+		System.exit(0);
+	}
+	
+	public static void gameWon(GameScreen1 myGameScreen) {
+		// Stop the player & its projectile:
+		myGameScreen.myPlayer.stop();
+		myGameScreen.prjct_player.stop();
+		
+		// Hide player projectile:
+		myGameScreen.lbl_prjct_player.setVisible(false);
+		
+		// Display celebratory msg & exit game:
+		JOptionPane.showMessageDialog(null, "YOU STOPPED THE INVASION - WELL DONE!");
 		System.exit(0);
 	}
 
@@ -249,9 +264,12 @@ public class GameScreen1 extends JFrame implements KeyListener{
 						gameOver(myGameScreen);
 					}
 					if(myGameScreen.enemies[i][j].getCanShoot()) {
-						myGameScreen.enemies[i][j].getEnemyProjectile().startEnemyProjectileThread();
+//						myGameScreen.enemies[i][j].getEnemyProjectile().startEnemyProjectileThread();
 					}
 				}				
+			}
+			if(myGameScreen.prjct_player.getInvasionStopped()) {
+				gameWon(myGameScreen);
 			}
 		}
 	}

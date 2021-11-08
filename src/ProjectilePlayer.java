@@ -1,6 +1,5 @@
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 
 public class ProjectilePlayer extends Sprite implements Runnable {
 	
@@ -8,7 +7,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	private Thread thread;
 	private JLabel lbl_prjct_player, lbl_currentScore;
 	private Enemy[][] enemies;
-	private Boolean collision, keyPressed;
+	private Boolean collision, keyPressed, invasionStopped;
 	private Player myPlayer;
 	private int enemyCount;
 	
@@ -31,6 +30,9 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	public void setEnemies(Enemy[][] temp) {this.enemies = temp;}
 	public void setLbl_prjct_player(JLabel temp) {this.lbl_prjct_player = temp;}
 	
+	public Boolean getInvasionStopped() {return invasionStopped;}
+	public void setInvasionStopped(Boolean boardCleared) {this.invasionStopped = boardCleared;}
+	
 	//Constructors:
 	//Default
 	public ProjectilePlayer() {
@@ -39,6 +41,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		this.inMotion = false;
 		this.keyPressed = false;
 		this.enemyCount = GameProperties.ENEMY_COUNT;
+		this.invasionStopped = false;
 	}
 	
 	//Secondary
@@ -51,6 +54,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		this.inMotion = false;
 		this.keyPressed = false;
 		this.enemyCount = GameProperties.ENEMY_COUNT;
+		this.invasionStopped = false;
 	}
 	
 	//Other methods:
@@ -80,7 +84,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	public void updatePlayerScore() {
 		myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY);
 		this.getLbl_currentScore().setText(String.valueOf(myPlayer.getPlayerScore()));
-		System.out.println(myPlayer.getPlayerScore());
+//		System.out.println(myPlayer.getPlayerScore());
 	}
 	
 	public void reassignRightBumper(Enemy enemy) {
@@ -201,32 +205,19 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		}
 	}
 	
-	private void respondToCount(int count) {
-		if(count == 40) {
-			GameProperties.ENEMY_STEP += 5;
-		}
-		else if(count == 25) {
-			GameProperties.ENEMY_STEP += 5;
-		}
-		else if(count == 10) {
-			GameProperties.ENEMY_STEP += 5;
-		}
-		else if(count == 5) {
-			GameProperties.ENEMY_STEP += 5;
-
-		}
-		else if(count == 1) {
-			GameProperties.ENEMY_STEP += 5;
-		}
-		if(count == 0) {
-			JOptionPane.showMessageDialog(null, "YOU STOPPED THE INVASION!");
-			System.exit(0);
-		}
+	private void increaseEnemySpeed(int count) {
+		switch(count) {
+			case 40: GameProperties.ENEMY_STEP += 5; break;
+			case 25: GameProperties.ENEMY_STEP += 5; break;
+			case 10: GameProperties.ENEMY_STEP += 5; break;
+			case 5: GameProperties.ENEMY_STEP += 5; break;
+			case 1: GameProperties.ENEMY_STEP += 5; break;
+		}	
 	}
 	
 	private void updateEnemyCount() {
 		GameProperties.ENEMY_COUNT -= 1;
-		respondToCount(GameProperties.ENEMY_COUNT);
+		System.out.println("Enemies remaining: " + GameProperties.ENEMY_COUNT);
 	}
 	
 	public void reassignCanShoot(Enemy enemy) {
@@ -252,24 +243,34 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		enemy.setCanShoot(false);
 		enemy.getHitbox().setSize(0, 0);
 		enemy.hide();
+		this.updatePlayerScore();
+		this.updateEnemyCount();
+		
+		if(GameProperties.ENEMY_COUNT == 0) {
+			this.setInvasionStopped(true);
+			System.out.println("Invasion Stopped? " + this.getInvasionStopped());
+		}
+		
 		// Reassign "can shoot" flag:
 		reassignCanShoot(enemy);
+		
 		// If enemy has bumper flag set, reassign it:
 		if(enemy.getIsRightBumper()) {
 			enemy.setIsRightBumper(false);
 			reassignRightBumper(enemy);	
 		}
-		else if(enemy.getIsBottomBumper()) {
+		
+		if(enemy.getIsBottomBumper()) {
 			enemy.setIsBottomBumper(false);
 			reassignBottomBumper(enemy);
-			
 		}
-		else if(enemy.getIsLeftBumper()) {
+		
+		if(enemy.getIsLeftBumper()) {
 			enemy.setIsLeftBumper(false);
 			reassignLeftBumper(enemy);
 		}
-		this.updatePlayerScore();
-		this.updateEnemyCount();
+		
+		increaseEnemySpeed(GameProperties.ENEMY_COUNT);
 	}
 	
 	private Boolean detectEnemyCollision() {
