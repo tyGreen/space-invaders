@@ -7,9 +7,16 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	private Thread thread;
 	private JLabel lbl_prjct_player, lbl_currentScore;
 	private Enemy[][] enemies;
-	private Boolean collision, keyPressed;
+	private Boolean collision, keyPressed, invasionStopped;
 	private Player myPlayer;
+	private int enemyCount;
 	
+	public int getEnemyCount() {
+		return enemyCount;
+	}
+	public void setEnemyCount(int enemyCount) {
+		this.enemyCount = enemyCount;
+	}
 	public Boolean getCollision() {return collision;}
 	public void setCollision(Boolean collision) {this.collision = collision;}
 	
@@ -23,6 +30,9 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	public void setEnemies(Enemy[][] temp) {this.enemies = temp;}
 	public void setLbl_prjct_player(JLabel temp) {this.lbl_prjct_player = temp;}
 	
+	public Boolean getInvasionStopped() {return invasionStopped;}
+	public void setInvasionStopped(Boolean boardCleared) {this.invasionStopped = boardCleared;}
+	
 	//Constructors:
 	//Default
 	public ProjectilePlayer() {
@@ -30,6 +40,8 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		this.collision = false;
 		this.inMotion = false;
 		this.keyPressed = false;
+		this.enemyCount = GameProperties.ENEMY_COUNT;
+		this.invasionStopped = false;
 	}
 	
 	//Secondary
@@ -41,6 +53,8 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		this.collision = false;
 		this.inMotion = false;
 		this.keyPressed = false;
+		this.enemyCount = GameProperties.ENEMY_COUNT;
+		this.invasionStopped = false;
 	}
 	
 	//Other methods:
@@ -53,14 +67,6 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		this.lbl_prjct_player.setVisible(true);
 	}
 	
-//		this.setCollision(false);
-//		enemyHit.getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_explosion_enemy.gif")));
-//		timer = new Timer(600, new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				enemyHit.getLbl_enemy().setVisible(false);
-//			}
-//		});
-//		timer.start();
 	private void resetPlayerProjectile() {
 		//Resets x,y coordinates & label of player projectile:
 		this.setX(myPlayer.getX());
@@ -78,35 +84,40 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	public void updatePlayerScore() {
 		myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY);
 		this.getLbl_currentScore().setText(String.valueOf(myPlayer.getPlayerScore()));
-		System.out.println(myPlayer.getPlayerScore());
+//		System.out.println(myPlayer.getPlayerScore());
 	}
 	
 	public void reassignRightBumper(Enemy enemy) {
 		// Store enemy array in "enemies" variable:
 		Enemy[][] enemies = enemy.getEnemies();
-		//int currentRightBumperRow = 0;
 		int currentRightBumperCol;
+		Boolean enemyHadFocus = false;
 		// Get this enemy's position (row & column #):
 		OUTER:
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				// If right bumper found:
-				if(enemies[i][j].getIsRightBumper()) {
-					//currentRightBumperRow = i;
+				
+				// Find this enemy:
+				if(enemies[i][j] == enemy) {
 					currentRightBumperCol = j;
-					// Set right bumper flag to false:
-					enemy.setIsRightBumper(false);
+					if(enemies[i][j].getHasFocus()) {
+						enemies[i][j].setHasFocus(false);
+						enemyHadFocus = true;
+					}
+					
 					// Find the next in-motion (not destroyed) enemy to left of old right bumper:
 					for(j = currentRightBumperCol - 1; j >= 0; j--) {
+						
 						// If enemy in motion (not destroyed)						
 						if(enemies[i][j].getInMotion()) {
+							
 							// Becomes the next right bumper:
 							enemies[i][j].setIsRightBumper(true);
+							if(enemyHadFocus) {
+								enemies[i][j].setHasFocus(true);
+							}
 							enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 							break OUTER;
-						}
-						else {
-							// GAME OVER
 						}
 					}
 				}
@@ -115,34 +126,41 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	}
 	
 	public void reassignBottomBumper(Enemy enemy) {
-		System.out.println("Bottom dead :( ");
 		// Store enemy array in "enemies" variable:
 		Enemy[][] enemies = enemy.getEnemies();
 		int currentBottomBumperRow = 0;
 		int currentBottomBumperCol = 0;
+		Boolean enemyHadFocus = false;
 		// Get this enemy's position (row & column #):
 		OUTER:
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				// If right bumper found:
-				if(enemies[i][j].getIsBottomBumper()) {
+				
+				//Find this enemy:
+				if(enemies[i][j] == enemy) {
 					currentBottomBumperRow = i;
 					currentBottomBumperCol = j;
-					
+				
 					// Set right bumper flag to false:
-					enemy.setIsBottomBumper(false);
+					if(enemies[i][j].getHasFocus()) {
+						enemies[i][j].setHasFocus(false);
+						enemyHadFocus = true;
+					}
+					
 					// Find the next in-motion (not destroyed) enemy to left of old right bumper:
 					for(i = currentBottomBumperRow; i >= 0; i--) {
 						for(j = currentBottomBumperCol; j < GameProperties.ENEMY_COLS; j++) {
+							
 							// If enemy in motion (not destroyed)						
 							if(enemies[i][j].getInMotion()) {
+								
 								// Becomes the next right bumper:
 								enemies[i][j].setIsBottomBumper(true);
 								enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+								if(enemyHadFocus) {
+									enemies[i][j].setHasFocus(true);
+								}
 								break OUTER;
-							}
-							else {
-								// GAME OVER
 							}
 						}
 						currentBottomBumperCol = 0;
@@ -157,16 +175,18 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		Enemy[][] enemies = enemy.getEnemies();
 		//int currentRightBumperRow = 0;
 		int currentLeftBumperCol;
+		boolean enemyHadFocus = false;
 		// Get this enemy's position (row & column #):
 		OUTER:
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				// If right bumper found:
-				if(enemies[i][j].getIsLeftBumper()) {
-					//currentRightBumperRow = i;
+				if(enemies[i][j] == enemy) {
 					currentLeftBumperCol = j;
-					// Set right bumper flag to false:
-					enemy.setIsLeftBumper(false);
+					if(enemies[i][j].getHasFocus()) {
+						enemies[i][j].setHasFocus(false);
+						enemyHadFocus = true;
+					}
 					// Find the next in-motion (not destroyed) enemy to left of old right bumper:
 					for(j = currentLeftBumperCol + 1; j < GameProperties.ENEMY_COLS; j++) {
 						// If enemy in motion (not destroyed)						
@@ -174,10 +194,10 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 							// Becomes the next right bumper:
 							enemies[i][j].setIsLeftBumper(true);
 							enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+							if(enemyHadFocus) {
+								enemies[i][j].setHasFocus(true);
+							}
 							break OUTER;
-						}
-						else {
-							// GAME OVER
 						}
 					}
 				}
@@ -185,29 +205,76 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		}
 	}
 	
-	private void destroyEnemy(Enemy enemy) {
-		enemy.stop();
-
-		// If enemy has bumper flag set, reassign it:
-		if(enemy.getIsRightBumper()) {
-			reassignRightBumper(enemy);	
-		}
-		else if(enemy.getIsBottomBumper()) {
-			reassignBottomBumper(enemy);
-			
-		}
-		else if(enemy.getIsLeftBumper()) {
-			reassignLeftBumper(enemy);
+	private void increaseEnemySpeed(int count) {
+		switch(count) {
+			case 40: GameProperties.ENEMY_STEP += 5; break;
+			case 25: GameProperties.ENEMY_STEP += 5; break;
+			case 10: GameProperties.ENEMY_STEP += 5; break;
+			case 5: GameProperties.ENEMY_STEP += 5; break;
+			case 1: GameProperties.ENEMY_STEP += 5; break;
+		}	
+	}
+	
+	private void updateEnemyCount() {
+		GameProperties.ENEMY_COUNT -= 1;
+		System.out.println("Enemies remaining: " + GameProperties.ENEMY_COUNT);
+	}
+	
+	public void reassignCanShoot(Enemy enemy) {
+		Enemy[][] enemies = enemy.getEnemies();
+		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+			for(int j = 0; j< GameProperties.ENEMY_COLS; j++) {
+				if(enemies[i][j] == enemy) {
+					enemy.setCanShoot(false);
+					// If not first row (prevents flag reassignment going out of bounds):
+					if((i - 1) >= 0) {
+						// Sets "can shoot" flag of enemy directly behind destroyed enemy to true:
+						enemies[i - 1][j].setCanShoot(true);
+					}
+				}
+			}
 		}
 		
+		
+	}
+
+	private void destroyEnemy(Enemy enemy) {
+		enemy.stop();
+		enemy.setCanShoot(false);
 		enemy.getHitbox().setSize(0, 0);
 		enemy.hide();
 		this.updatePlayerScore();
+		this.updateEnemyCount();
+		
+		if(GameProperties.ENEMY_COUNT == 0) {
+			this.setInvasionStopped(true);
+			System.out.println("Invasion Stopped? " + this.getInvasionStopped());
+		}
+		
+		// Reassign "can shoot" flag:
+		reassignCanShoot(enemy);
+		
+		// If enemy has bumper flag set, reassign it:
+		if(enemy.getIsRightBumper()) {
+			enemy.setIsRightBumper(false);
+			reassignRightBumper(enemy);	
+		}
+		
+		if(enemy.getIsBottomBumper()) {
+			enemy.setIsBottomBumper(false);
+			reassignBottomBumper(enemy);
+		}
+		
+		if(enemy.getIsLeftBumper()) {
+			enemy.setIsLeftBumper(false);
+			reassignLeftBumper(enemy);
+		}
+		
+		increaseEnemySpeed(GameProperties.ENEMY_COUNT);
 	}
 	
 	private Boolean detectEnemyCollision() {
 		//Iterate through enemy array and test each enemy's hitbox for collision w/ player projectile hitbox:
-//		OUTER_LOOP:
 		Boolean collisionDetected = false;
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
@@ -221,25 +288,6 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		}
 		return collisionDetected;
 	}
-	
-	
-//	public void launchPlayerProjectile() {
-//		//If projectile not already in motion:
-//		if(this.getInMotion() == false) {
-//			//Move projectile toward enemies while it's collision-free
-//			//& is still has room to move (within bounds):
-//			Boolean enemyCollisionDetected;
-//			do {
-//				//Move projectile toward enemies:
-//				this.setY(this.getY() - GameProperties.PRJCT_PLAYER_STEP);
-//				//Update image label:
-//				lbl_prjct_player.setLocation(this.getX(), this.getY());
-//				//Check for collision (determines whether loop continues running):
-//				enemyCollisionDetected = this.detectEnemyCollision();
-//			}
-//			while((!enemyCollisionDetected) && (this.getY() - GameProperties.PRJCT_PLAYER_STEP) < 0);
-//		}		
-//	}
 	
 	public void launchPlayerProjectile() {
 		this.setKeyPressed(true);

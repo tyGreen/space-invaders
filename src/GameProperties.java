@@ -20,7 +20,7 @@ public class GameProperties {
 	public static final int ENEMY_WIDTH = 50;
 	public static final int ENEMY_HEIGHT = 50;
 	public static final int ENEMY_SPACING = 0;
-	public static final int ENEMY_STEP = 5;
+	public static int ENEMY_STEP = 5;
 	
 	public static final int PRJCT_ENEMY_STEP = 20;
 	public static final int PRJCT_ENEMY_WIDTH = 25;
@@ -31,4 +31,5 @@ public class GameProperties {
 	//# rows & columns in ememy array:
 	public static final int ENEMY_ROWS = 5;
 	public static final int ENEMY_COLS = 11;
+	public static int ENEMY_COUNT = (ENEMY_ROWS * ENEMY_COLS);
 }

@@ -16,6 +16,9 @@ public class Player extends Sprite {
 	public int getPlayerScore() {return playerScore;}
 	public void setPlayerScore(int playerScore) {this.playerScore = playerScore;}
 	
+	public JLabel getLbl_player() {return lbl_player;}
+	public void setLbl_player(JLabel lbl_player) {this.lbl_player = lbl_player;}
+	
 	//Constructors:
 	public Player() {
 		super(GameProperties.PLAYER_WIDTH, GameProperties.PLAYER_HEIGHT, "img_player.png", false, true, false);

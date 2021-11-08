@@ -7,6 +7,7 @@ import java.awt.event.KeyListener;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 public class GameScreen1 extends JFrame implements KeyListener{
 
@@ -15,12 +16,11 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	//Storage classes for game sprites:
 	private Player myPlayer;
 	private ProjectilePlayer prjct_player;
-	private ProjectileEnemy prjct_enemy;
 	private Enemy[][] enemies;
 	private Background myBg;
 	
 	//JLabels to display sprites:
-	private JLabel lbl_player, lbl_prjct_player, lbl_prjct_enemy, lbl_bg, lbl_score, lbl_currentScore;
+	private JLabel lbl_player, lbl_prjct_player, lbl_bg, lbl_score, lbl_currentScore;
 	private ImageIcon img_player, img_enemy, img_prjct_player, img_prjct_enemy, img_bg;
 	private JLabel[] lbl_playerLives;
 		
@@ -62,15 +62,12 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		}
 		
 		enemies = new Enemy[GameProperties.ENEMY_ROWS][GameProperties.ENEMY_COLS];
-//		img_enemy = new ImageIcon(getClass().getResource(myEnemy.getFileName()));
-//		lbl_enemy.setIcon(img_enemy);
-//		lbl_enemy.setSize(myEnemy.getWidth(), myEnemy.getHeight());
 		int enemyOffsetX = 0;
 		int enemyOffsetY = 0;
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			enemyOffsetX = 0;
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				enemies[i][j] = new Enemy((0 + enemyOffsetX), (GameProperties.ENEMY_HEIGHT + enemyOffsetY), new JLabel(), myPlayer, enemies);
+				enemies[i][j] = new Enemy((0 + enemyOffsetX), (GameProperties.ENEMY_HEIGHT + enemyOffsetY), new JLabel(), myPlayer, enemies, lbl_playerLives);
 				img_enemy = new ImageIcon(getClass().getResource(enemies[i][j].getFileName()));
 				enemies[i][j].getLbl_enemy().setIcon(img_enemy);
 				enemies[i][j].getLbl_enemy().setSize(enemies[i][j].getWidth(), enemies[i][j].getHeight());			
@@ -102,6 +99,24 @@ public class GameScreen1 extends JFrame implements KeyListener{
 				// Start positioning enemies on next row:
 				enemyOffsetY += enemies[i][j].getHeight();
 				}
+				
+				// If enemy is in bottom row:
+				if(i == GameProperties.ENEMY_ROWS - 1) {
+					// Set "can shoot" flag to true:
+					enemies[i][j].setCanShoot(true);
+//					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+				}
+				
+				// ENEMY'S PROJECTILE:
+				enemies[i][j].getEnemyProjectile().setX(enemies[i][j].getX() + 12); // Enemy projectile sprite half width of enemy sprite, so to be centered behind enemy, sprite needs to be offset by half width of enemy
+				enemies[i][j].getEnemyProjectile().setY(enemies[i][j].getY());
+				// Set size of enemy projectile label to match size of enemy projectile sprite:
+				enemies[i][j].getLbl_enemy().setSize(enemies[i][j].getWidth(), enemies[i][j].getHeight());			
+
+				enemies[i][j].getEnemyProjectile().getLbl_prjct_enemy().setSize(GameProperties.PRJCT_ENEMY_WIDTH, GameProperties.PRJCT_PLAYER_HEIGHT);
+				// Set image icon of enemy projectile:
+				img_prjct_enemy = new ImageIcon(getClass().getResource(enemies[i][j].getEnemyProjectile().getFileName()));
+				enemies[i][j].getEnemyProjectile().getLbl_prjct_enemy().setIcon(img_prjct_enemy);
 			}	
 		}
 		
@@ -112,19 +127,6 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		lbl_prjct_player.setSize(prjct_player.getWidth(), prjct_player.getHeight());
 		prjct_player.setLbl_prjct_player(lbl_prjct_player);
 		prjct_player.setEnemies(enemies);
-		
-		lbl_prjct_enemy = new JLabel();
-		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				prjct_enemy = new ProjectileEnemy(enemies[i][j], lbl_playerLives);
-			}
-		}
-		img_prjct_enemy = new ImageIcon(getClass().getResource(prjct_enemy.getFileName()));
-		lbl_prjct_enemy.setIcon(img_prjct_enemy);
-		lbl_prjct_enemy.setSize(prjct_enemy.getWidth(), prjct_enemy.getHeight());
-		prjct_enemy.setLbl_prjct_enemy(lbl_prjct_enemy);
-		prjct_enemy.setPlayer(myPlayer);
-		prjct_enemy.setLbl_player(lbl_player);
 		
 		lbl_bg = new JLabel();
 		myBg = new Background();
@@ -143,17 +145,6 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		prjct_player.setX(myPlayer.getX() + (prjct_player.getWidth()/2));
 		prjct_player.setY(myPlayer.getY());
 		
-		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				prjct_enemy.setX(enemies[i][j].getX());
-			}
-		}
-		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				prjct_enemy.setY(enemies[i][j].getY());
-			}
-		}
-		
 		myBg.setX(0);
 		myBg.setY(0);
 		
@@ -161,61 +152,124 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		lbl_score.setLocation(15, 15);
 		lbl_currentScore.setLocation(15, (15 + GameProperties.SCORE_TXT_SIZE));
 		lbl_player.setLocation(myPlayer.getX(), myPlayer.getY());
+		
 		int offset_playerLives = 0;
 		for(int i = 0; i < lbl_playerLives.length; i++) {
 			lbl_playerLives[i].setLocation(offset_playerLives, (GameProperties.SCREEN_HEIGHT - 70));
 			offset_playerLives += 30;
 		}
+		
 		lbl_prjct_player.setLocation(prjct_player.getX(), prjct_player.getY());
+		
 		int offset_enemyX = 0;
 		int offset_enemyY = 0;
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			offset_enemyX = 0;
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				enemies[i][j].getLbl_enemy().setLocation(enemies[i][j].getX() + offset_enemyX, enemies[i][j].getY() + offset_enemyY);
+				enemies[i][j].getEnemyProjectile().getLbl_prjct_enemy().setLocation(enemies[i][j].getEnemyProjectile().getX(), enemies[i][j].getEnemyProjectile().getY());
 				offset_enemyX += (enemies[i][j].getWidth() + GameProperties.ENEMY_SPACING);
 				if(j == (GameProperties.ENEMY_COLS)) {
 					offset_enemyY += enemies[i][j].getHeight();
 				}
 			}
 		}
-		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				lbl_prjct_enemy.setLocation(enemies[i][j].getX(), enemies[i][j].getY());
-			}
-		}
+		
 		lbl_bg.setLocation(myBg.getX(), myBg.getY());
 		
 		//Add objects to screen:
 		add(lbl_score);
 		add(lbl_currentScore);
 		add(lbl_player);
+		
 		for(int i = 0; i < lbl_playerLives.length; i++) {
 			this.add(lbl_playerLives[i]);
 		}
+		
 		add(lbl_prjct_player);
+		
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				this.add(enemies[i][j].getLbl_enemy()).setVisible(enemies[i][j].getVisible());;
+				this.add(enemies[i][j].getLbl_enemy()).setVisible(enemies[i][j].getVisible());
+				this.add(enemies[i][j].getEnemyProjectile().getLbl_prjct_enemy()).setVisible(false);
 			}
 		}
-		add(lbl_prjct_enemy);
+		
 		lbl_prjct_player.setVisible(false);
-		lbl_prjct_enemy.setVisible(false);
 		
 		container1.addKeyListener(this);
 		container1.setFocusable(true);
 		//Action upon hitting close button:
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
 	}
+	
+	public static void gameOver(GameScreen1 myGameScreen) {
+		// Stop the player & its projectile:
+		myGameScreen.myPlayer.stop();
+		myGameScreen.prjct_player.stop();
+		
+		// Hide player projectile:
+		myGameScreen.lbl_prjct_player.setVisible(false);
+
+		// Stop enemies & their projectiles, & hide enemy projectiles:
+		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+				myGameScreen.enemies[i][j].stop();
+				myGameScreen.enemies[i][j].setCanShoot(false);
+				myGameScreen.enemies[i][j].getEnemyProjectile().stop();
+				myGameScreen.enemies[i][j].getEnemyProjectile().getLbl_prjct_enemy().setVisible(false);	
+			}
+		}
+		
+		// Display "GAME OVER" msg & exit game:
+		JOptionPane.showMessageDialog(null, "GAME OVER");
+		System.exit(0);
+	}
+	
+	public static void gameWon(GameScreen1 myGameScreen) {
+		// Stop the player & its projectile:
+		myGameScreen.myPlayer.stop();
+		myGameScreen.prjct_player.stop();
+		
+		// Hide player projectile:
+		myGameScreen.lbl_prjct_player.setVisible(false);
+		
+		// Display celebratory msg & exit game:
+		JOptionPane.showMessageDialog(null, "YOU STOPPED THE INVASION - WELL DONE!");
+		System.exit(0);
+	}
 
 	public static void main(String args[]) { 
 		GameScreen1 myGameScreen = new GameScreen1();
 		myGameScreen.setVisible(true); 
-		myGameScreen.prjct_enemy.startEnemyProjectileThread();	
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				myGameScreen.enemies[i][j].moveEnemy();
+				// If enemy can shoot (in bottom row), start its projectile thread:
+				if(myGameScreen.enemies[i][j].getCanShoot()) {
+					myGameScreen.enemies[i][j].getEnemyProjectile().startEnemyProjectileThread();
+				}
+			}
+		}
+		
+		//Infinite loop to continusouly scan for "can shoot" and "gameover" flags:
+		while(true) {
+			// Continue checking for "game over" flag in enemy objects:
+			for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+				for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+					if(myGameScreen.enemies[i][j].getGameOver()) {
+						gameOver(myGameScreen);	
+					}
+					if(myGameScreen.enemies[i][j].getEnemyProjectile().getGameOver()) {
+						gameOver(myGameScreen);
+					}
+					if(myGameScreen.enemies[i][j].getCanShoot()) {
+//						myGameScreen.enemies[i][j].getEnemyProjectile().startEnemyProjectileThread();
+					}
+				}				
+			}
+			if(myGameScreen.prjct_player.getInvasionStopped()) {
+				gameWon(myGameScreen);
 			}
 		}
 	}
