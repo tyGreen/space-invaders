@@ -11,7 +11,7 @@ public class GameProperties {
 	//# pixels sprites move upon trigger:
 	public static final int PLAYER_WIDTH = 50;
 	public static final int PLAYER_HEIGHT = 60;
-	public static final int PLAYER_STEP = 15;
+	public static final int PLAYER_STEP = 50;
 	
 	public static final int PRJCT_PLAYER_STEP = 30;
 	public static final int PRJCT_PLAYER_WIDTH = 25;
@@ -29,7 +29,7 @@ public class GameProperties {
 	public static final int PTS_PER_ENEMY = 20;
 
 	//# rows & columns in ememy array:
-	public static final int ENEMY_ROWS = 2;
-	public static final int ENEMY_COLS = 2;
+	public static final int ENEMY_ROWS = 5;
+	public static final int ENEMY_COLS = 11;
 	public static int ENEMY_COUNT = (ENEMY_ROWS * ENEMY_COLS);
 }

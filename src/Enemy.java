@@ -184,7 +184,7 @@ public class Enemy extends Sprite implements Runnable {
 				// While enemy has BOTTOM bumper flag set:
 				if(this.getIsBottomBumper()) {
 					// While BOTTOM bumper still has room to move down:
-					if((this.getY() + this.getHeight()) <= myPlayer.getY()) {
+					if((this.getY() + this.getHeight()) < myPlayer.getY()) {
 						moveEnemiesDown(this.enemies);
 						try {
 							Thread.sleep(200);
@@ -255,7 +255,7 @@ public class Enemy extends Sprite implements Runnable {
 					// Otherwise, only 1 enemy left:
 					else {
 						// If it has room to move down:
-						if((this.getY() + this.getHeight()) <= myPlayer.getY()) {
+						if((this.getY() + this.getHeight()) < myPlayer.getY()) {
 							// Move enemy down one line before next iteration of move sequence loop:
 							this.moveEnemiesDown(enemies);
 							this.setHasFocus(false);

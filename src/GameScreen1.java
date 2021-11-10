@@ -212,7 +212,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
 	}
 	
-	public static void gameOver(GameScreen1 myGameScreen) {
+	public static void stopGame(GameScreen1 myGameScreen) {
 		// Stop the player & its projectile:
 		myGameScreen.myPlayer.stop();
 		myGameScreen.prjct_player.stop();
@@ -229,34 +229,30 @@ public class GameScreen1 extends JFrame implements KeyListener{
 				myGameScreen.enemies[i][j].getEnemyProjectile().getLbl_prjct_enemy().setVisible(false);	
 			}
 		}
-		
-		// Display "GAME OVER" msg & exit game:
-		JOptionPane.showMessageDialog(null, "GAME OVER");
-		System.exit(0);
-	}
-	
-	public static void gameWon(GameScreen1 myGameScreen) {
-		// Stop the player & its projectile:
-		myGameScreen.myPlayer.stop();
-		myGameScreen.prjct_player.stop();
-		
-		// Hide player projectile:
-		myGameScreen.lbl_prjct_player.setVisible(false);
-		
-		// Display celebratory msg:
-		JOptionPane.showMessageDialog(null, "YOU STOPPED THE INVASION - WELL DONE!");
-//		System.exit(0);
 	}
 	
 	public static void displayScoreboard(ResultSet rs) throws SQLException {
-		System.out.println("Name, Score");
+		String[] names = new String[10];
+		int[] scores = new int[10];
+		int i = 0;
 		while(rs.next()) {
 			//col headers NOT case-sensitive!
-			String name = rs.getString("name");
-			int score = rs.getInt("score");		
-			
-			System.out.println(name + ", " + score);
+			names[i] = rs.getString("name");
+			scores[i] = rs.getInt("score");	
+			i++;
 		}
+		JOptionPane.showMessageDialog(null, "Leaderboard: \n 1. " 
+				+ names[0] + "  " + scores[0] + "\n2. "
+				+ names[1] + "  " + scores[1] + "\n3. "
+				+ names[2] + "  " + scores[2] + "\n4. "
+				+ names[3] + "  " + scores[3] + "\n5. "
+				+ names[4] + "  " + scores[4] + "\n6. "
+				+ names[5] + "  " + scores[5] + "\n7. "
+				+ names[6] + "  " + scores[6] + "\n8. "
+				+ names[7] + "  " + scores[7] + "\n9. "
+				+ names[8] + "  " + scores[8] + "\n10. "
+				+ names[9] + "  " + scores[9]	
+		);
 	}
 	
 	public static void submitScore(String name, int score) {
@@ -302,10 +298,11 @@ public class GameScreen1 extends JFrame implements KeyListener{
 				pstmt.executeUpdate();
 				conn.commit();
 				
-				ResultSet rs = stmt.executeQuery("SELECT * FROM SCOREBOARD");
+				// Select 10 highest scores (& corresponding player name) from db:
+				ResultSet rs = stmt.executeQuery("SELECT * FROM SCOREBOARD ORDER BY SCORE DESC LIMIT 10");
 				displayScoreboard(rs); // Displays top scores
 				rs.close(); //close results-set to free resources
-//				
+			
 				conn.close(); //closes connection to db file	
 			}
 			}
@@ -320,7 +317,25 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			}
 	}
 	
+	public static void gameOverRoutine(GameScreen1 gs1) {
+		stopGame(gs1);
+		// Display "GAME OVER" msg:
+		JOptionPane.showMessageDialog(null, "GAME OVER");
+		String playerName = JOptionPane.showInputDialog("Please enter your name: ");
+		int playerScore = gs1.myPlayer.getPlayerScore();
+		submitScore(playerName, playerScore);
+		System.exit(0);
+	}
 	
+	public static void gameWonRoutine(GameScreen1 gs1) {
+		stopGame(gs1);
+		// Display congratulatory msg:
+		JOptionPane.showMessageDialog(null, "YOU STOPPED THE IVASION!");
+		String playerName = JOptionPane.showInputDialog("Please enter your name: ");
+		int playerScore = gs1.myPlayer.getPlayerScore();
+		submitScore(playerName, playerScore);
+		System.exit(0);
+	}
 
 	public static void main(String args[]) { 
 		GameScreen1 myGameScreen = new GameScreen1();
@@ -341,20 +356,18 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			// Continue checking for "game over" flag in enemy objects:
 			for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 				for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+					
 					if(myGameScreen.enemies[i][j].getGameOver()) {
-						gameOver(myGameScreen);	
+						gameOverRoutine(myGameScreen);
 					}
+					
 					if(myGameScreen.enemies[i][j].getEnemyProjectile().getGameOver()) {
-						gameOver(myGameScreen);
+						gameOverRoutine(myGameScreen);	
 					}
 				}				
 			}
 			if(myGameScreen.prjct_player.getInvasionStopped()) {
-				gameWon(myGameScreen);
-				String playerName = JOptionPane.showInputDialog("Please enter your name: ");
-				int playerScore = myGameScreen.myPlayer.getPlayerScore();
-				submitScore(playerName, playerScore);
-				System.exit(0);
+				gameWonRoutine(myGameScreen);
 			}
 		}
 	}
