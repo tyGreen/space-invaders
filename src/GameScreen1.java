@@ -5,6 +5,13 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -236,10 +243,84 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		// Hide player projectile:
 		myGameScreen.lbl_prjct_player.setVisible(false);
 		
-		// Display celebratory msg & exit game:
+		// Display celebratory msg:
 		JOptionPane.showMessageDialog(null, "YOU STOPPED THE INVASION - WELL DONE!");
-		System.exit(0);
+//		System.exit(0);
 	}
+	
+	public static void displayScoreboard(ResultSet rs) throws SQLException {
+		System.out.println("Name, Score");
+		while(rs.next()) {
+			//col headers NOT case-sensitive!
+			String name = rs.getString("name");
+			int score = rs.getInt("score");		
+			
+			System.out.println(name + ", " + score);
+		}
+	}
+	
+	public static void submitScore(String name, int score) {
+		//Declare connection & SQL statement
+		String playerName = name;
+		int playerScore = score;
+		Connection conn = null;
+		Statement stmt = null;
+		
+		try {
+			Class.forName("org.sqlite.JDBC"); //JDBC -> Java DataBase Connectivity
+			System.out.println("Database Driver Loaded");
+			
+			String dbURL = "jdbc:sqlite:space-invaders.db"; // db file created in bin folder
+			conn = DriverManager.getConnection(dbURL);
+			
+			if(conn != null) {
+				//If db connection was successful:
+				System.out.println("Connected to database");
+				conn.setAutoCommit(false);
+				
+				DatabaseMetaData dm = (DatabaseMetaData) conn.getMetaData();
+				System.out.println("Driver name: " + dm.getDriverName());
+				System.out.println("Driver version: " + dm.getDriverVersion());
+				System.out.println("Product name: " + dm.getDatabaseProductName());
+				System.out.println("Product version: " + dm.getDatabaseProductVersion());
+				
+				// Create "SCOREBOARD" table:
+				stmt = conn.createStatement();
+				
+				String sql = "CREATE TABLE IF NOT EXISTS SCOREBOARD" +
+							 "(ID INTEGER PRIMARY KEY AUTOINCREMENT," + //AUTOINCREMENT requires INTEGER (not INT)
+							 "NAME TEXT NOT NULL," +
+							 "SCORE INT NOT NULL)";
+				stmt.executeUpdate(sql);
+				conn.commit();
+				System.out.println("Table Created Successfully");
+				
+				sql = "INSERT INTO SCOREBOARD (NAME, SCORE) VALUES (?, ?)";
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, playerName);
+				pstmt.setInt(2, playerScore);
+				pstmt.executeUpdate();
+				conn.commit();
+				
+				ResultSet rs = stmt.executeQuery("SELECT * FROM SCOREBOARD");
+				displayScoreboard(rs); // Displays top scores
+				rs.close(); //close results-set to free resources
+//				
+				conn.close(); //closes connection to db file	
+			}
+			}
+			catch(ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+	}
+	
+	
 
 	public static void main(String args[]) { 
 		GameScreen1 myGameScreen = new GameScreen1();
@@ -256,6 +337,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		
 		//Infinite loop to continusouly scan for "can shoot" and "gameover" flags:
 		while(true) {
+			System.out.println(myGameScreen.prjct_player.getInvasionStopped());
 			// Continue checking for "game over" flag in enemy objects:
 			for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 				for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
@@ -265,13 +347,14 @@ public class GameScreen1 extends JFrame implements KeyListener{
 					if(myGameScreen.enemies[i][j].getEnemyProjectile().getGameOver()) {
 						gameOver(myGameScreen);
 					}
-					if(myGameScreen.enemies[i][j].getCanShoot()) {
-//						myGameScreen.enemies[i][j].getEnemyProjectile().startEnemyProjectileThread();
-					}
 				}				
 			}
 			if(myGameScreen.prjct_player.getInvasionStopped()) {
 				gameWon(myGameScreen);
+				String playerName = JOptionPane.showInputDialog("Please enter your name: ");
+				int playerScore = myGameScreen.myPlayer.getPlayerScore();
+				submitScore(playerName, playerScore);
+				System.exit(0);
 			}
 		}
 	}

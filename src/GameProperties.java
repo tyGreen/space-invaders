@@ -29,7 +29,7 @@ public class GameProperties {
 	public static final int PTS_PER_ENEMY = 20;
 
 	//# rows & columns in ememy array:
-	public static final int ENEMY_ROWS = 5;
-	public static final int ENEMY_COLS = 11;
+	public static final int ENEMY_ROWS = 2;
+	public static final int ENEMY_COLS = 2;
 	public static int ENEMY_COUNT = (ENEMY_ROWS * ENEMY_COLS);
 }
