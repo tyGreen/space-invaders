@@ -230,12 +230,11 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 					if((i - 1) >= 0) {
 						// Sets "can shoot" flag of enemy directly behind destroyed enemy to true:
 						enemies[i - 1][j].setCanShoot(true);
+						enemies[i - 1][j].getEnemyProjectile().startEnemyProjectileThread();
 					}
 				}
 			}
-		}
-		
-		
+		}		
 	}
 
 	private void destroyEnemy(Enemy enemy) {
@@ -248,7 +247,6 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		
 		if(GameProperties.ENEMY_COUNT == 0) {
 			this.setInvasionStopped(true);
-			System.out.println("Invasion Stopped? " + this.getInvasionStopped());
 		}
 		
 		// Reassign "can shoot" flag:

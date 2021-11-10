@@ -11,7 +11,7 @@ public class GameProperties {
 	//# pixels sprites move upon trigger:
 	public static final int PLAYER_WIDTH = 50;
 	public static final int PLAYER_HEIGHT = 60;
-	public static final int PLAYER_STEP = 50;
+	public static final int PLAYER_STEP = 25;
 	
 	public static final int PRJCT_PLAYER_STEP = 30;
 	public static final int PRJCT_PLAYER_WIDTH = 25;

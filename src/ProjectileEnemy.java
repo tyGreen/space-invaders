@@ -8,7 +8,7 @@ import javax.swing.Timer;
 public class ProjectileEnemy extends Sprite implements Runnable {
 	
 	//Attributes:
-	private Thread thread1;
+	private Thread thread;
 	private JLabel lbl_prjct_enemy, lbl_player;
 	private Player myPlayer;
 	private Timer tmr_regeneratePlayer;
@@ -19,20 +19,14 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	public Boolean getCollision() {return collision;}
 	public void setCollision(Boolean temp) {this.collision = temp;}
 	
-	public Boolean getGameOver() {
-		return gameOver;
-	}
-	public void setGameOver(Boolean gameOver) {
-		this.gameOver = gameOver;
-	}
+	public Boolean getGameOver() {return gameOver;}
+	public void setGameOver(Boolean gameOver) {this.gameOver = gameOver;}
 	
-	public JLabel getLbl_prjct_enemy() {
-		return lbl_prjct_enemy;
-	}
-	public void setLbl_prjct_enemy(JLabel lbl_prjct_enemy) {
-		this.lbl_prjct_enemy = lbl_prjct_enemy;
-	}
+	public JLabel getLbl_prjct_enemy() {return lbl_prjct_enemy;}
+	public void setLbl_prjct_enemy(JLabel lbl_prjct_enemy) {this.lbl_prjct_enemy = lbl_prjct_enemy;}
 	
+	public Thread getThread() {return thread;}
+	public void setThread(Thread thread) {this.thread = thread;}
 	//When passing in arguments via setters, DO NOT alter or create new constructors for the argument - setter only!
 	public void setPlayer(Player temp) {this.myPlayer = temp;}
 	public void setLbl_player(JLabel temp) {this.lbl_player = temp;}
@@ -144,8 +138,8 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	}
 	
 	public void startEnemyProjectileThread() {
-		thread1 = new Thread(this, "Enemy Projectile Thread");
-		thread1.start();
+		thread = new Thread(this, "Enemy Projectile Thread");
+		thread.start();
 	}
 	
 	@Override
