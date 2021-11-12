@@ -411,6 +411,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	public static void main(String args[]) { 
 		GameScreen1 myGameScreen = new GameScreen1();
 		myGameScreen.setVisible(true); 
+		new BgMusic();
 	}
 	
 //=====================================================================================================
