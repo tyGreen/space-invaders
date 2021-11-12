@@ -85,7 +85,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 				if((i == 0) && (j == 0)) {
 					// It is the left bumper:
 					enemies[i][j].setIsLeftBumper(true);
-					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+//					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 				}
 				// Else, if this is the last enemy in the first row (top right corner):
 				else if((i == 0) && (j == GameProperties.ENEMY_COLS - 1)) {
@@ -93,14 +93,14 @@ public class GameScreen1 extends JFrame implements KeyListener{
 					enemies[i][j].setIsRightBumper(true);
 					// Get focus first because enemies move to right first:
 					enemies[i][j].setHasFocus(true);
-					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+//					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 					
 				}
 				// Else, if this enemy is the first in the last row (bottom left corner):
 				else if((i == (GameProperties.ENEMY_ROWS - 1)) && (j == 0)) {
 					// Set "bumper" flag to true:
 					enemies[i][j].setIsBottomBumper(true);
-					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+//					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 				}
 			
 				// If this enemy is the last in its row:
@@ -208,25 +208,67 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		
 		container1.addKeyListener(this);
 		container1.setFocusable(true);
+		
+		// Start thread for each enemy & its projectile:
+		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+				enemies[i][j].moveEnemy();
+				// If enemy can shoot (in bottom row), start its projectile thread:
+				if(enemies[i][j].getCanShoot()) {
+					enemies[i][j].getEnemyProjectile().startEnemyProjectileThread();
+				}
+			}
+		}
+		
+		// Thread to check if game win or lose conditions met:
+		Thread thread_main = new Thread (new Runnable() {
+			public void run() {
+				synchronized(this) {
+					while(true) {
+						for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+							for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+								
+								if(enemies[i][j].getInMotion() && enemies[i][j].getGameOver()) {
+									gameOverRoutine();
+									break;
+								}
+								
+								if(enemies[i][j].getInMotion() && enemies[i][j].getEnemyProjectile().getGameOver()) {
+									gameOverRoutine();	
+									break;
+								}
+								
+								if(prjct_player.getInvasionStopped()) {
+									gameWonRoutine();
+									break;
+								}
+							}				
+						}
+					}
+				}
+			}
+		});
+		thread_main.start();
+		
 		//Action upon hitting close button:
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
-	}
+	} // End GameScreen constructor
 	
-	public static void stopGame(GameScreen1 myGameScreen) {
+	public void stopGame() {
 		// Stop the player & its projectile:
-		myGameScreen.myPlayer.stop();
-		myGameScreen.prjct_player.stop();
+		myPlayer.stop();
+		prjct_player.stop();
 		
 		// Hide player projectile:
-		myGameScreen.lbl_prjct_player.setVisible(false);
+		lbl_prjct_player.setVisible(false);
 
 		// Stop enemies & their projectiles, & hide enemy projectiles:
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				myGameScreen.enemies[i][j].stop();
-				myGameScreen.enemies[i][j].setCanShoot(false);
-				myGameScreen.enemies[i][j].getEnemyProjectile().stop();
-				myGameScreen.enemies[i][j].getEnemyProjectile().getLbl_prjct_enemy().setVisible(false);	
+				enemies[i][j].stop();
+				enemies[i][j].setCanShoot(false);
+				enemies[i][j].getEnemyProjectile().setStopProjectile(true);
+				enemies[i][j].getEnemyProjectile().getLbl_prjct_enemy().setVisible(false);	
 			}
 		}
 	}
@@ -235,8 +277,9 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		String[] names = new String[10];
 		int[] scores = new int[10];
 		int i = 0;
+		// While still more records:
 		while(rs.next()) {
-			//col headers NOT case-sensitive!
+			// Store name at next index of name array, and score at next index of score array:
 			names[i] = rs.getString("name");
 			scores[i] = rs.getInt("score");	
 			i++;
@@ -317,61 +360,63 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			}
 	}
 	
-	public static void gameOverRoutine(GameScreen1 gs1) {
-		stopGame(gs1);
+	public void gameOverRoutine() {
+		stopGame();
 		// Display "GAME OVER" msg:
 		JOptionPane.showMessageDialog(null, "GAME OVER");
 		String playerName = JOptionPane.showInputDialog("Please enter your name: ");
-		int playerScore = gs1.myPlayer.getPlayerScore();
+		while(playerName.trim().isEmpty()) {
+			playerName = JOptionPane.showInputDialog("Please enter your name: ");
+		}
+		int playerScore = myPlayer.getPlayerScore();
 		submitScore(playerName, playerScore);
 		System.exit(0);
 	}
 	
-	public static void gameWonRoutine(GameScreen1 gs1) {
-		stopGame(gs1);
+	public int awardLifeBonus(int score, int lives) {
+		int preBonusScore = score;
+		int numLivesRemaining = lives;
+		int bonusAwarded = 0;
+
+		// Adjust bonus pts awarded based on num lives remaining:
+		if(numLivesRemaining == 3) {
+			bonusAwarded = GameProperties.NO_HIT_BONUS;
+		}
+		else {
+			bonusAwarded = numLivesRemaining * GameProperties.PTS_PER_BONUS_LIFE;
+		}
+		
+		return (preBonusScore + bonusAwarded);
+	}
+	
+	public void gameWonRoutine() {
+		stopGame();
 		// Display congratulatory msg:
 		JOptionPane.showMessageDialog(null, "YOU STOPPED THE IVASION!");
 		String playerName = JOptionPane.showInputDialog("Please enter your name: ");
-		int playerScore = gs1.myPlayer.getPlayerScore();
+		
+		while(playerName.trim().isEmpty()) {
+			playerName = JOptionPane.showInputDialog("Please enter your name: ");
+		}
+		
+		int playerScore = awardLifeBonus(myPlayer.getPlayerScore(), myPlayer.getPlayerLives());
 		submitScore(playerName, playerScore);
 		System.exit(0);
 	}
-
+	
+//=====================================================================================================
+//	PROGRAM MAIN
+//=====================================================================================================
+	
 	public static void main(String args[]) { 
 		GameScreen1 myGameScreen = new GameScreen1();
 		myGameScreen.setVisible(true); 
-		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-				myGameScreen.enemies[i][j].moveEnemy();
-				// If enemy can shoot (in bottom row), start its projectile thread:
-				if(myGameScreen.enemies[i][j].getCanShoot()) {
-					myGameScreen.enemies[i][j].getEnemyProjectile().startEnemyProjectileThread();
-				}
-			}
-		}
-		
-		//Infinite loop to continusouly scan for "can shoot" and "gameover" flags:
-		while(true) {
-			System.out.println(myGameScreen.prjct_player.getInvasionStopped());
-			// Continue checking for "game over" flag in enemy objects:
-			for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-				for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-					
-					if(myGameScreen.enemies[i][j].getGameOver()) {
-						gameOverRoutine(myGameScreen);
-					}
-					
-					if(myGameScreen.enemies[i][j].getEnemyProjectile().getGameOver()) {
-						gameOverRoutine(myGameScreen);	
-					}
-				}				
-			}
-			if(myGameScreen.prjct_player.getInvasionStopped()) {
-				gameWonRoutine(myGameScreen);
-			}
-		}
 	}
-
+	
+//=====================================================================================================
+//	KEYBOARD CONTROLS
+//=====================================================================================================
+	
 	@Override
 	public void keyTyped(KeyEvent e) {
 		//Key press & release treated as one
@@ -429,4 +474,5 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	public void keyReleased(KeyEvent e) {
 		//Key release only	
 	}	
-}
+	
+} // End GameScreen1 Class

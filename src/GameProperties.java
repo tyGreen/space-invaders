@@ -1,17 +1,23 @@
 //Single file (class) containing several game properties:
 public class GameProperties {
 	
-	//Screen dimensions:
+	// Screen dimensions:
 	public static final int SCREEN_WIDTH = 800;
 	public static final int SCREEN_HEIGHT = 800;
 	
-	//Scoreboard:
+	// Scoreboard:
 	public static final int SCORE_TXT_SIZE = 20;
 	
-	//# pixels sprites move upon trigger:
+	// Points System:
+	public static final int PTS_PER_ENEMY = 25;
+	public static final int NO_HIT_BONUS = 1000;
+	public static final int PTS_PER_BONUS_LIFE = 250;
+	
+	
+	// # pixels sprites move upon trigger:
 	public static final int PLAYER_WIDTH = 50;
 	public static final int PLAYER_HEIGHT = 60;
-	public static final int PLAYER_STEP = 25;
+	public static final int PLAYER_STEP = 40;
 	
 	public static final int PRJCT_PLAYER_STEP = 30;
 	public static final int PRJCT_PLAYER_WIDTH = 25;
@@ -25,10 +31,9 @@ public class GameProperties {
 	public static final int PRJCT_ENEMY_STEP = 20;
 	public static final int PRJCT_ENEMY_WIDTH = 25;
 	public static final int PRJCT_ENEMY_HEIGHT = 30;
-	
-	public static final int PTS_PER_ENEMY = 20;
+	public static final int PRJCT_ENEMY_SHOT_FREQ = 25;
 
-	//# rows & columns in ememy array:
+	// # rows & columns in ememy array:
 	public static final int ENEMY_ROWS = 5;
 	public static final int ENEMY_COLS = 11;
 	public static int ENEMY_COUNT = (ENEMY_ROWS * ENEMY_COLS);

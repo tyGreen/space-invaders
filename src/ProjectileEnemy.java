@@ -13,11 +13,12 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	private Player myPlayer;
 	private Timer tmr_regeneratePlayer;
 	private Enemy myEnemy;
-	private Boolean collision, gameOver;
+	private Boolean stopProjectile, gameOver;
 	private JLabel[] lbl_playerLives;
+	private Enemy[][] enemies;
 	
-	public Boolean getCollision() {return collision;}
-	public void setCollision(Boolean temp) {this.collision = temp;}
+	public Boolean getStopProjectile() {return stopProjectile;}
+	public void setStopProjectile(Boolean temp) {this.stopProjectile = temp;}
 	
 	public Boolean getGameOver() {return gameOver;}
 	public void setGameOver(Boolean gameOver) {this.gameOver = gameOver;}
@@ -36,17 +37,18 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	//Default
 	public ProjectileEnemy() {
 		super(GameProperties.PRJCT_ENEMY_WIDTH, GameProperties.PRJCT_ENEMY_HEIGHT, "img_prjct_enemy.png", false, false, false);
-		this.collision = false;
+		this.stopProjectile = false;
 		this.gameOver = false;
 		this.lbl_prjct_enemy = new JLabel();
 	}
 	
-	public ProjectileEnemy(Enemy temp1, JLabel[] temp2, Player temp3) {
+	public ProjectileEnemy(Enemy temp1, JLabel[] temp2, Player temp3, Enemy[][] temp4) {
 		super(GameProperties.PRJCT_ENEMY_WIDTH, GameProperties.PRJCT_ENEMY_HEIGHT, "img_prjct_enemy.png", false, false, false);
 		this.myEnemy = temp1;
 		this.lbl_playerLives = temp2;
 		this.myPlayer = temp3;
-		this.collision = false;
+		this.enemies = temp4;
+		this.stopProjectile = false;
 		this.gameOver  = false;
 		this.lbl_prjct_enemy = new JLabel();
 	}
@@ -93,13 +95,17 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	}
 	
 	public void subtractPlayerLife() {
-		if(this.myPlayer.getPlayerLives() > 0) {
-			this.myPlayer.setPlayerLives(this.myPlayer.getPlayerLives() - 1);
-			// Update player lives label to reflect current # player lives remaining:
-			this.lbl_playerLives[this.myPlayer.getPlayerLives()].setVisible(false);
-		}
-		// Otherwise, player lives must be at 0:
-		else {
+		this.myPlayer.setPlayerLives(this.myPlayer.getPlayerLives() - 1);
+		
+		// Update player lives label to reflect current # player lives remaining:
+		this.lbl_playerLives[this.myPlayer.getPlayerLives()].setVisible(false);
+		
+		// If player lives hit 0:
+		if(this.myPlayer.getPlayerLives() == 0) {
+			// Disable enemy projectile hitbox:
+			this.getHitbox().setSize(0, 0);
+			// Disable player hitbox:
+			myPlayer.getHitbox().setSize(0, 0);
 			// Set the enemy projectile's "game over" flag to true for detection by game screen:
 			this.setGameOver(true);
 		}
@@ -125,9 +131,9 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 	}
 	
 	public boolean enemyWillShoot() {
-		// Generates two random integers between 1 & 999 :
-		int randomInt1 = (int)(Math.random() * 50 + 1);
-		int randomInt2 = (int)(Math.random() * 50 + 1);
+		// Generates two random integers between 1 & GameProperties.ENEMY_SHOT_FREQ:
+		int randomInt1 = (int)(Math.random() * GameProperties.PRJCT_ENEMY_SHOT_FREQ + 1);
+		int randomInt2 = (int)(Math.random() * GameProperties.PRJCT_ENEMY_SHOT_FREQ + 1);
 		// If integers match:
 		if(randomInt1 == randomInt2) {
 			return true;
@@ -152,12 +158,13 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 			if(enemyWillShoot()) {
 				
 				// While the projectile has room to move south without going out of bounds:
-				while((this.y + GameProperties.PRJCT_ENEMY_STEP) < GameProperties.SCREEN_HEIGHT) {
+				while(!this.getStopProjectile() && (this.y + GameProperties.PRJCT_ENEMY_STEP) < GameProperties.SCREEN_HEIGHT) {
 					launchProjectile();
 					if(collisionDetected()) {
-						resetProjectile();
 						subtractPlayerLife();
+						resetProjectile();
 						resetPlayer();
+						break;
 					}
 					try {
 						Thread.sleep(200);
@@ -184,12 +191,7 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 				
 			}
 		}	
-//		try {
-//			Thread.sleep(200);
-//		}
-//		catch(Exception e) {
-//			
-//		}
+		
 	} // End run()
 	
 } // End ProjectileEnemy.java

@@ -1,4 +1,3 @@
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public class ProjectilePlayer extends Sprite implements Runnable {
@@ -116,7 +115,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 							if(enemyHadFocus) {
 								enemies[i][j].setHasFocus(true);
 							}
-							enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+//							enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 							break OUTER;
 						}
 					}
@@ -156,7 +155,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 								
 								// Becomes the next right bumper:
 								enemies[i][j].setIsBottomBumper(true);
-								enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+//								enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 								if(enemyHadFocus) {
 									enemies[i][j].setHasFocus(true);
 								}
@@ -193,7 +192,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 						if(enemies[i][j].getInMotion()) {
 							// Becomes the next right bumper:
 							enemies[i][j].setIsLeftBumper(true);
-							enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+//							enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 							if(enemyHadFocus) {
 								enemies[i][j].setHasFocus(true);
 							}
@@ -211,13 +210,12 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 			case 25: GameProperties.ENEMY_STEP += 5; break;
 			case 10: GameProperties.ENEMY_STEP += 5; break;
 			case 5: GameProperties.ENEMY_STEP += 5; break;
-			case 1: GameProperties.ENEMY_STEP += 5; break;
+			case 1: GameProperties.ENEMY_STEP += 15; break;
 		}	
 	}
 	
 	private void updateEnemyCount() {
 		GameProperties.ENEMY_COUNT -= 1;
-		System.out.println("Enemies remaining: " + GameProperties.ENEMY_COUNT);
 	}
 	
 	public void reassignCanShoot(Enemy enemy) {
@@ -277,9 +275,10 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				//If player collision detected:
-				if(this.hitbox.intersects(enemies[i][j].getHitbox())) {
+				if(this.hitbox.intersects(enemies[i][j].getHitbox().getX(), (enemies[i][j].getHitbox().getY() - enemies[i][j].getHeight() ), enemies[i][j].getHitbox().getWidth(), enemies[i][j].getHitbox().getHeight())) {
 					collisionDetected = true;
 					resetPlayerProjectile();
+					myPlayer.setAlienFlag(i, j, false);
 					destroyEnemy(enemies[i][j]);	
 				}
 			}

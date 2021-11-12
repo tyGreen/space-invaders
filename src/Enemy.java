@@ -64,7 +64,7 @@ public class Enemy extends Sprite implements Runnable {
 	//Constructors:
 	public Enemy() {
 		super(GameProperties.ENEMY_WIDTH, GameProperties.ENEMY_HEIGHT, "img_invader1.gif", true, true, false);
-		this.enemyProjectile = new ProjectileEnemy(this, this.lbl_playerLives, this.myPlayer);
+		this.enemyProjectile = new ProjectileEnemy(this, this.lbl_playerLives, this.myPlayer, this.enemies);
 		this.isRightBumper = false;
 		this.isLeftBumper = false;
 		this.isBottomBumper = false;
@@ -81,7 +81,7 @@ public class Enemy extends Sprite implements Runnable {
 		this.myPlayer = temp4;
 		this.enemies = temp5;
 		this.lbl_playerLives = temp6;
-		this.enemyProjectile = new ProjectileEnemy(this, this.lbl_playerLives, this.myPlayer);
+		this.enemyProjectile = new ProjectileEnemy(this, this.lbl_playerLives, this.myPlayer, this.enemies);
 		this.isRightBumper = false;
 		this.isLeftBumper = false;
 		this.isBottomBumper = false;
@@ -148,17 +148,127 @@ public class Enemy extends Sprite implements Runnable {
 	@Override
 	public void run() { 
 		// Master loop - when this ends, thread dies:
+		MOTION:
 		while(this.getInMotion()) {
 			// While enemy has focus:
 				// This loop keeps all (non-destroyed) enemies moving by running four inner loops
 				// in sequence depending on current flag set, & so long as at least one enemy has 
 				// the focus (at least one enemy left on screen)
 			while(this.getHasFocus()) { 
-				
-				// While enemy has RIGHT bumper flag set:
-				if(this.getIsRightBumper()) {
+				 
+				if(GameProperties.ENEMY_COUNT > 1) {
 					
-					// While RIGHT bumper has room to move right:
+					// While enemy has RIGHT bumper flag set:
+					if(this.getIsRightBumper()) {
+						
+						// While RIGHT bumper has room to move right:
+						while( (this.getX() + this.getWidth() + GameProperties.ENEMY_STEP) < GameProperties.SCREEN_WIDTH) {
+							// Move all enemies right:
+							moveEnemiesRight(this.enemies);
+							if(!this.getInMotion()) {
+								break MOTION;
+							}
+							try {
+								Thread.sleep(200);
+							}
+							catch(Exception e) {
+								
+							}
+						}
+						// Focus shifts from this enemy to enemy with BOTTOM bumper flag set:
+						this.setHasFocus(false);
+						// Iterate through array to find enemy with BOTTOM bumper flag set:
+						for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+							for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+								if(enemies[i][j].getIsBottomBumper()) {
+									enemies[i][j].setHasFocus(true);
+								}
+							}
+						}
+					}
+					
+					// While enemy has BOTTOM bumper flag set:
+					if(this.getIsBottomBumper()) {
+						// While BOTTOM bumper still has room to move down:
+						if((this.getY() + this.getHeight()) < myPlayer.getY()) {
+							moveEnemiesDown(this.enemies);
+							if(!this.getInMotion()) {
+								break MOTION;
+							}
+							try {
+								Thread.sleep(200);
+							}
+							catch(Exception e) {
+								
+							}
+							this.setHasFocus(false);
+							// Determine whether to shift focus to right bumper or left bumper:
+							// Iterate through array to find right bumper:
+							OUTER:
+							for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+								for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+									if(enemies[i][j].getIsRightBumper()) {
+										// Right bumper found. Test if right step would put it out of bounds:
+										if( (enemies[i][j].getX() + enemies[i][j].getWidth() + GameProperties.ENEMY_STEP) < GameProperties.SCREEN_WIDTH) {
+											// If not, give right bumper the focus next:
+											enemies[i][j].setHasFocus(true);
+											break OUTER;
+										}
+										// Otherwise we must be at right edge of screen & must now move left:
+										else {
+											// Left bumper will get focus next. Iterate through array again to find it:
+											for(i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+												for(j = 0; j < GameProperties.ENEMY_COLS; j++) {
+													if(enemies[i][j].getIsLeftBumper()) {
+														// Once found, give it focus:
+														enemies[i][j].setHasFocus(true);
+														break OUTER;
+													}
+												}
+											}
+										}
+									}
+								}
+							}	
+						}
+						else {
+							this.setGameOver(true);
+						}
+					}
+					
+					// While enemy has LEFT bumper flag set:
+					if(this.getIsLeftBumper()) {
+						// While LEFT bumper has room to move left:
+						while(this.getX() - GameProperties.ENEMY_STEP > 0) {
+							// Move all enemies down
+							moveEnemiesLeft(this.enemies);
+							if(!this.getInMotion()) {
+								break MOTION;
+							}
+							try {
+								Thread.sleep(200);
+							}
+							catch(Exception e) {
+								
+							}
+						}
+						// Focus shifts from this enemy to enemy with BOTTOM bumper flag set:
+						this.setHasFocus(false);
+						if(GameProperties.ENEMY_COUNT > 1) {
+							// Iterate through array to find enemy with BOTTOM bumper flag set:
+							for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
+								for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
+									if(enemies[i][j].getIsBottomBumper()) {
+										enemies[i][j].setHasFocus(true);
+									}
+								}
+							}
+						}
+					}
+				}
+				// Otherwise, this is the final enemy:
+				else {
+					// Move right while room to do so:
 					while( (this.getX() + this.getWidth() + GameProperties.ENEMY_STEP) < GameProperties.SCREEN_WIDTH) {
 						// Move all enemies right:
 						moveEnemiesRight(this.enemies);
@@ -169,20 +279,18 @@ public class Enemy extends Sprite implements Runnable {
 							
 						}
 					}
-					// Focus shifts from this enemy to enemy with BOTTOM bumper flag set:
-					this.setHasFocus(false);
-					// Iterate through array to find enemy with BOTTOM bumper flag set:
-					for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-						for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-							if(enemies[i][j].getIsBottomBumper()) {
-								enemies[i][j].setHasFocus(true);
-							}
+					
+					// Move down one line while room to do so:
+					if((this.getY() + this.getHeight()) < myPlayer.getY()) {
+						moveEnemiesDown(this.enemies);
+						try {
+							Thread.sleep(200);
+						}
+						catch(Exception e) {
+							
 						}
 					}
-				}
-				
-				// While enemy has BOTTOM bumper flag set:
-				if(this.getIsBottomBumper()) {
+					
 					// While BOTTOM bumper still has room to move down:
 					if((this.getY() + this.getHeight()) < myPlayer.getY()) {
 						moveEnemiesDown(this.enemies);
@@ -192,47 +300,19 @@ public class Enemy extends Sprite implements Runnable {
 						catch(Exception e) {
 							
 						}
-						this.setHasFocus(false);
-						// Determine whether to shift focus to right bumper or left bumper:
-						// Iterate through array to find right bumper:
-						OUTER:
-						for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-							for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-								if(enemies[i][j].getIsRightBumper()) {
-									// Right bumper found. Test if right step would put it out of bounds:
-									if( (enemies[i][j].getX() + enemies[i][j].getWidth() + GameProperties.ENEMY_STEP) < GameProperties.SCREEN_WIDTH) {
-										// If not, give right bumper the focus next:
-										enemies[i][j].setHasFocus(true);
-										break OUTER;
-									}
-									// Otherwise we must be at right edge of screen & must now move left:
-									else {
-										// Left bumper will get focus next. Iterate through array again to find it:
-										for(i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-											for(j = 0; j < GameProperties.ENEMY_COLS; j++) {
-												if(enemies[i][j].getIsLeftBumper()) {
-													// Once found, give it focus:
-													enemies[i][j].setHasFocus(true);
-													break OUTER;
-												}
-											}
-										}
-									}
-								}
-							}
-						}	
 					}
 					else {
 						this.setGameOver(true);
+						break;
 					}
-				}
-				
-				// While enemy has LEFT bumper flag set:
-				if(this.getIsLeftBumper()) {
-					// While LEFT bumper has room to move left:
+					
+					// Move left while room to do so:
 					while(this.getX() - GameProperties.ENEMY_STEP > 0) {
 						// Move all enemies down
 						moveEnemiesLeft(this.enemies);
+						if(!this.getInMotion()) {
+							break MOTION;
+						}
 						try {
 							Thread.sleep(200);
 						}
@@ -240,39 +320,25 @@ public class Enemy extends Sprite implements Runnable {
 							
 						}
 					}
-					// Focus shifts from this enemy to enemy with BOTTOM bumper flag set:
-					this.setHasFocus(false);
-					if(GameProperties.ENEMY_COUNT > 1) {
-						// Iterate through array to find enemy with BOTTOM bumper flag set:
-						for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
-							for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
-								if(enemies[i][j].getIsBottomBumper()) {
-									enemies[i][j].setHasFocus(true);
-								}
-							}
+					
+					// Move down one line while room to do so:
+					if((this.getY() + this.getHeight()) < myPlayer.getY()) {
+						moveEnemiesDown(this.enemies);
+						try {
+							Thread.sleep(200);
+						}
+						catch(Exception e) {
+							
 						}
 					}
-					// Otherwise, only 1 enemy left:
 					else {
-						// If it has room to move down:
-						if((this.getY() + this.getHeight()) < myPlayer.getY()) {
-							// Move enemy down one line before next iteration of move sequence loop:
-							this.moveEnemiesDown(enemies);
-							this.setHasFocus(false);
-							try {
-								Thread.sleep(200);
-							}
-							catch(Exception e) {
-								
-							}
-						}
-						else {
-							this.setGameOver(true);
-						}
+						this.setGameOver(true);
+						break;
 					}
-				}
+					// REPEAT
+				}	
 			}
-				
+			
 			// While this enemy DOESN'T have focus:
 			while(!this.getHasFocus()) {
 
