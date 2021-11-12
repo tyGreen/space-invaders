@@ -9,6 +9,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	private Boolean collision, keyPressed, invasionStopped;
 	private Player myPlayer;
 	private int enemyCount;
+	private UFO myUFO;
 	
 	public int getEnemyCount() {
 		return enemyCount;
@@ -44,11 +45,12 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	}
 	
 	//Secondary
-	public ProjectilePlayer(JLabel temp1, Player temp2, JLabel temp3) {
+	public ProjectilePlayer(JLabel temp1, Player temp2, JLabel temp3, UFO temp4) {
 		super(GameProperties.PRJCT_PLAYER_WIDTH, GameProperties.PRJCT_PLAYER_HEIGHT, "img_prjct_player.png", false, false, false);
 		this.lbl_prjct_player = temp1;
 		this.myPlayer = temp2;
 		this.lbl_currentScore = temp3;
+		this.myUFO = temp4;
 		this.collision = false;
 		this.inMotion = false;
 		this.keyPressed = false;
@@ -80,10 +82,17 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		this.setKeyPressed(false);
 	}
 	
-	public void updatePlayerScore() {
-		myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY);
+	public void updatePlayerScore(int id) {
+		if(id == 1) {
+			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY);
+
+		}
+		else if(id == 2) {
+			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_UFO);
+
+		}
+		
 		this.getLbl_currentScore().setText(String.valueOf(myPlayer.getPlayerScore()));
-//		System.out.println(myPlayer.getPlayerScore());
 	}
 	
 	public void reassignRightBumper(Enemy enemy) {
@@ -204,13 +213,28 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		}
 	}
 	
-	private void increaseEnemySpeed(int count) {
+	private void increaseInvasionSpeed(int count) {
 		switch(count) {
-			case 40: GameProperties.ENEMY_STEP += 5; break;
-			case 25: GameProperties.ENEMY_STEP += 5; break;
-			case 10: GameProperties.ENEMY_STEP += 5; break;
-			case 5: GameProperties.ENEMY_STEP += 5; break;
-			case 1: GameProperties.ENEMY_STEP += 15; break;
+			case 40: 
+				GameProperties.ENEMY_STEP += 5; 
+				GameProperties.UFO_STEP += 5; 
+				break;
+			case 25: 
+				GameProperties.ENEMY_STEP += 5; 
+				GameProperties.UFO_STEP += 5; 
+				break;
+			case 10: 
+				GameProperties.ENEMY_STEP += 5; 
+				GameProperties.UFO_STEP += 5; 
+				break;
+			case 5: 
+				GameProperties.ENEMY_STEP += 5; 
+				GameProperties.UFO_STEP += 5; 
+				break;
+			case 1: 
+				GameProperties.ENEMY_STEP += 5; 
+				GameProperties.UFO_STEP += 5; 
+				break;
 		}	
 	}
 	
@@ -240,7 +264,8 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		enemy.setCanShoot(false);
 		enemy.getHitbox().setSize(0, 0);
 		enemy.hide();
-		this.updatePlayerScore();
+		// Pass in ID of "1" for enemies:
+		this.updatePlayerScore(1);
 		this.updateEnemyCount();
 		
 		if(GameProperties.ENEMY_COUNT == 0) {
@@ -266,7 +291,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 			reassignLeftBumper(enemy);
 		}
 		
-		increaseEnemySpeed(GameProperties.ENEMY_COUNT);
+		increaseInvasionSpeed(GameProperties.ENEMY_COUNT);
 	}
 	
 	private Boolean detectEnemyCollision() {
@@ -282,6 +307,23 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 					destroyEnemy(enemies[i][j]);	
 				}
 			}
+		}
+		return collisionDetected;
+	}
+	
+	public void destroyUFO(UFO ufo) {
+		ufo.setIsAlive(false);
+		// Pass in ID of "2" for UFOs:
+		this.updatePlayerScore(2);
+	}
+	
+	private Boolean detectUFOCollision() {
+		Boolean collisionDetected = false;
+		//If UFO collision detected:
+		if(this.hitbox.intersects(myUFO.getHitbox())) {
+			collisionDetected = true;
+			resetPlayerProjectile();
+			destroyUFO(myUFO);	
 		}
 		return collisionDetected;
 	}
@@ -306,6 +348,9 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 				this.lbl_prjct_player.setLocation(this.x, this.y);
 				if(this.detectEnemyCollision()) {
 					break;
+				}
+				else if(this.detectUFOCollision() ) {
+					
 				}
 				else if(thread_y <= 0) {
 					resetPlayerProjectile();

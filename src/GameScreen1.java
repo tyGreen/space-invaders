@@ -27,10 +27,11 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	private ProjectilePlayer prjct_player;
 	private Enemy[][] enemies;
 	private Background myBg;
+	private UFO myUFO;
 	
 	//JLabels to display sprites:
-	private JLabel lbl_player, lbl_prjct_player, lbl_bg, lbl_score, lbl_currentScore;
-	private ImageIcon img_player, img_enemy, img_prjct_player, img_prjct_enemy, img_bg;
+	private JLabel lbl_player, lbl_prjct_player, lbl_bg, lbl_score, lbl_currentScore, lbl_UFO;
+	private ImageIcon img_player, img_enemy, img_prjct_player, img_prjct_enemy, img_bg, img_UFO;
 	private JLabel[] lbl_playerLives;
 		
 	//Graphics container:
@@ -69,6 +70,18 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			lbl_playerLives[i].setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 			lbl_playerLives[i].setSize(30, 30);
 		}
+		
+		lbl_player = new JLabel();
+		myPlayer = new Player(lbl_player);
+		img_player = new ImageIcon(getClass().getResource(myPlayer.getFileName()));
+		lbl_player.setIcon(img_player);
+		lbl_player.setSize(myPlayer.getWidth(), myPlayer.getHeight());
+		
+		lbl_UFO = new JLabel();
+		myUFO = new UFO(lbl_UFO);
+		img_UFO = new ImageIcon(getClass().getResource(myUFO.getFileName()));
+		lbl_UFO.setIcon(img_UFO);
+		lbl_UFO.setSize(myUFO.getWidth(), myUFO.getHeight());
 		
 		enemies = new Enemy[GameProperties.ENEMY_ROWS][GameProperties.ENEMY_COLS];
 		int enemyOffsetX = 0;
@@ -130,7 +143,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		}
 		
 		lbl_prjct_player = new JLabel();
-		prjct_player = new ProjectilePlayer(lbl_prjct_player, myPlayer, lbl_currentScore);
+		prjct_player = new ProjectilePlayer(lbl_prjct_player, myPlayer, lbl_currentScore, myUFO);
 		img_prjct_player = new ImageIcon(getClass().getResource(prjct_player.getFileName()));
 		lbl_prjct_player.setIcon(img_prjct_player);
 		lbl_prjct_player.setSize(prjct_player.getWidth(), prjct_player.getHeight());
@@ -151,6 +164,9 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		myPlayer.setX((GameProperties.SCREEN_WIDTH/2) - myPlayer.getWidth());
 		myPlayer.setY(GameProperties.SCREEN_HEIGHT - (myPlayer.getHeight() * 2));
 		
+		myUFO.setX(0 - myUFO.getWidth());
+		myUFO.setY(5);
+		
 		prjct_player.setX(myPlayer.getX() + (prjct_player.getWidth()/2));
 		prjct_player.setY(myPlayer.getY());
 		
@@ -161,6 +177,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		lbl_score.setLocation(15, 15);
 		lbl_currentScore.setLocation(15, (15 + GameProperties.SCORE_TXT_SIZE));
 		lbl_player.setLocation(myPlayer.getX(), myPlayer.getY());
+		lbl_UFO.setLocation(myUFO.getX(), myUFO.getY());
 		
 		int offset_playerLives = 0;
 		for(int i = 0; i < lbl_playerLives.length; i++) {
@@ -190,6 +207,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		add(lbl_score);
 		add(lbl_currentScore);
 		add(lbl_player);
+		add(lbl_UFO);
 		
 		for(int i = 0; i < lbl_playerLives.length; i++) {
 			this.add(lbl_playerLives[i]);
@@ -219,6 +237,9 @@ public class GameScreen1 extends JFrame implements KeyListener{
 				}
 			}
 		}
+		
+		// Start UFO thread:
+		myUFO.startUFOThread();
 		
 		// Thread to check if game win or lose conditions met:
 		Thread thread_main = new Thread (new Runnable() {
@@ -252,8 +273,13 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		
 		//Action upon hitting close button:
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
+		
 	} // End GameScreen constructor
-	
+
+//=====================================================================================================
+//	GAMESCREEN FUNCTIONS
+//=====================================================================================================
+
 	public void stopGame() {
 		// Stop the player & its projectile:
 		myPlayer.stop();
@@ -261,7 +287,10 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		
 		// Hide player projectile:
 		lbl_prjct_player.setVisible(false);
-
+		
+		// Stop UFO spawning/movement:
+		myUFO.setStopThread(true);
+		
 		// Stop enemies & their projectiles, & hide enemy projectiles:
 		for(int i = 0; i < GameProperties.ENEMY_ROWS; i++) {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {

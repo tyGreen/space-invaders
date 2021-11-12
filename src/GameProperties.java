@@ -10,6 +10,7 @@ public class GameProperties {
 	
 	// Points System:
 	public static final int PTS_PER_ENEMY = 25;
+	public static final int PTS_PER_UFO = 300;
 	public static final int NO_HIT_BONUS = 1000;
 	public static final int PTS_PER_BONUS_LIFE = 250;
 	
@@ -32,6 +33,11 @@ public class GameProperties {
 	public static final int PRJCT_ENEMY_WIDTH = 25;
 	public static final int PRJCT_ENEMY_HEIGHT = 30;
 	public static final int PRJCT_ENEMY_SHOT_FREQ = 25;
+	
+	public static final int UFO_WIDTH = 60;
+	public static final int UFO_HEIGHT = 26;
+	public static int UFO_STEP = 10;
+	public static final int UFO_SPAWN_FREQ = 50;
 
 	// # rows & columns in ememy array:
 	public static final int ENEMY_ROWS = 5;
