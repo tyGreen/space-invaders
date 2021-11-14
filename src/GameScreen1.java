@@ -5,6 +5,8 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -13,6 +15,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -26,7 +33,6 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	private Player myPlayer;
 	private ProjectilePlayer prjct_player;
 	private Enemy[][] enemies;
-	private Background myBg;
 	private UFO myUFO;
 	
 	//JLabels to display sprites:
@@ -67,8 +73,8 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		lbl_playerLives = new JLabel[3];
 		for(int i = 0; i < 3; i++) {
 			lbl_playerLives[i] = new JLabel();
-			lbl_playerLives[i].setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
-			lbl_playerLives[i].setSize(30, 30);
+			lbl_playerLives[i].setIcon(new ImageIcon(getClass().getResource("img_playerLifeIcon.png")));
+			lbl_playerLives[i].setSize(GameProperties.PLAYER_LIFE_ICON_WIDTH, GameProperties.PLAYER_LIFE_ICON_HEIGHT);
 		}
 		
 		lbl_player = new JLabel();
@@ -90,15 +96,32 @@ public class GameScreen1 extends JFrame implements KeyListener{
 			enemyOffsetX = 0;
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				enemies[i][j] = new Enemy((0 + enemyOffsetX), (GameProperties.ENEMY_HEIGHT + enemyOffsetY), new JLabel(), myPlayer, enemies, lbl_playerLives);
-				img_enemy = new ImageIcon(getClass().getResource(enemies[i][j].getFileName()));
-				enemies[i][j].getLbl_enemy().setIcon(img_enemy);
 				enemies[i][j].getLbl_enemy().setSize(enemies[i][j].getWidth(), enemies[i][j].getHeight());			
 				enemyOffsetX += (enemies[i][j].getWidth() + GameProperties.ENEMY_SPACING);
+				
+				// Set icon according to row:
+				if(i == 0) {
+					img_enemy = new ImageIcon(getClass().getResource("img_enemy1.gif"));
+					enemies[i][j].setEnemyID(1);
+
+				}
+				else if (i == 1 || i == 2) {
+					img_enemy = new ImageIcon(getClass().getResource("img_enemy2.gif"));
+					enemies[i][j].setEnemyID(2);
+
+
+				}
+				else {
+					img_enemy = new ImageIcon(getClass().getResource("img_enemy3.gif"));
+					enemies[i][j].setEnemyID(3);
+				}
+				enemies[i][j].getLbl_enemy().setIcon(img_enemy);
+				
+				// Set the "bumpers" (enemies to reach walls first):
 				// If this is the first enemy in the first row (top left corner):
 				if((i == 0) && (j == 0)) {
 					// It is the left bumper:
 					enemies[i][j].setIsLeftBumper(true);
-//					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 				}
 				// Else, if this is the last enemy in the first row (top right corner):
 				else if((i == 0) && (j == GameProperties.ENEMY_COLS - 1)) {
@@ -106,27 +129,25 @@ public class GameScreen1 extends JFrame implements KeyListener{
 					enemies[i][j].setIsRightBumper(true);
 					// Get focus first because enemies move to right first:
 					enemies[i][j].setHasFocus(true);
-//					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 					
 				}
 				// Else, if this enemy is the first in the last row (bottom left corner):
 				else if((i == (GameProperties.ENEMY_ROWS - 1)) && (j == 0)) {
 					// Set "bumper" flag to true:
 					enemies[i][j].setIsBottomBumper(true);
-//					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
-				}
-			
-				// If this enemy is the last in its row:
-				if(j == GameProperties.ENEMY_COLS - 1) {
-				// Start positioning enemies on next row:
-				enemyOffsetY += enemies[i][j].getHeight();
 				}
 				
+				// Set "can shoot" flag (allows enemies to launch projectiles):
 				// If enemy is in bottom row:
 				if(i == GameProperties.ENEMY_ROWS - 1) {
 					// Set "can shoot" flag to true:
 					enemies[i][j].setCanShoot(true);
-//					enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
+				}
+				
+				// If this enemy is the last in its row:
+				if(j == GameProperties.ENEMY_COLS - 1) {
+					// Start positioning enemies on next row:
+					enemyOffsetY += enemies[i][j].getHeight();
 				}
 				
 				// ENEMY'S PROJECTILE:
@@ -149,12 +170,6 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		lbl_prjct_player.setSize(prjct_player.getWidth(), prjct_player.getHeight());
 		prjct_player.setLbl_prjct_player(lbl_prjct_player);
 		prjct_player.setEnemies(enemies);
-		
-		lbl_bg = new JLabel();
-		myBg = new Background();
-		img_bg = new ImageIcon(getClass().getResource(myBg.getFileName()));
-		lbl_bg.setIcon(img_bg);
-		lbl_bg.setSize(myBg.getWidth(), myBg.getHeight());
 
 		container1 = getContentPane();
 		container1.setBackground(Color.black);
@@ -169,9 +184,6 @@ public class GameScreen1 extends JFrame implements KeyListener{
 		
 		prjct_player.setX(myPlayer.getX() + (prjct_player.getWidth()/2));
 		prjct_player.setY(myPlayer.getY());
-		
-		myBg.setX(0);
-		myBg.setY(0);
 		
 		//Update lbl positions to match stored values:
 		lbl_score.setLocation(15, 15);
@@ -200,9 +212,7 @@ public class GameScreen1 extends JFrame implements KeyListener{
 				}
 			}
 		}
-		
-		lbl_bg.setLocation(myBg.getX(), myBg.getY());
-		
+				
 		//Add objects to screen:
 		add(lbl_score);
 		add(lbl_currentScore);
@@ -440,7 +450,6 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	public static void main(String args[]) { 
 		GameScreen1 myGameScreen = new GameScreen1();
 		myGameScreen.setVisible(true); 
-		new BgMusic();
 	}
 	
 //=====================================================================================================

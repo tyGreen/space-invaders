@@ -1,3 +1,11 @@
+import java.io.IOException;
+import java.net.URL;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JLabel;
 
 public class ProjectilePlayer extends Sprite implements Runnable {
@@ -84,12 +92,19 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	
 	public void updatePlayerScore(int id) {
 		if(id == 1) {
-			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY);
+			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY1);
 
 		}
 		else if(id == 2) {
-			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_UFO);
+			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY2);
 
+		}
+		else if(id == 3) {
+			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY3);
+
+		}
+		else {
+			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_UFO);
 		}
 		
 		this.getLbl_currentScore().setText(String.valueOf(myPlayer.getPlayerScore()));
@@ -216,24 +231,19 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	private void increaseInvasionSpeed(int count) {
 		switch(count) {
 			case 40: 
-				GameProperties.ENEMY_STEP += 5; 
-				GameProperties.UFO_STEP += 5; 
+				GameProperties.ENEMY_STEP *= 2; 
 				break;
 			case 25: 
-				GameProperties.ENEMY_STEP += 5; 
-				GameProperties.UFO_STEP += 5; 
+				GameProperties.ENEMY_STEP *= 2; 
 				break;
 			case 10: 
-				GameProperties.ENEMY_STEP += 5; 
-				GameProperties.UFO_STEP += 5; 
+				GameProperties.ENEMY_STEP *= 2; 
 				break;
 			case 5: 
-				GameProperties.ENEMY_STEP += 5; 
-				GameProperties.UFO_STEP += 5; 
+				GameProperties.ENEMY_STEP *= 2; 
 				break;
 			case 1: 
-				GameProperties.ENEMY_STEP += 5; 
-				GameProperties.UFO_STEP += 5; 
+				GameProperties.ENEMY_STEP *= 2; 
 				break;
 		}	
 	}
@@ -265,7 +275,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 		enemy.getHitbox().setSize(0, 0);
 		enemy.hide();
 		// Pass in ID of "1" for enemies:
-		this.updatePlayerScore(1);
+		this.updatePlayerScore(enemy.getEnemyID());
 		this.updateEnemyCount();
 		
 		if(GameProperties.ENEMY_COUNT == 0) {
@@ -301,6 +311,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 			for(int j = 0; j < GameProperties.ENEMY_COLS; j++) {
 				//If player collision detected:
 				if(this.hitbox.intersects(enemies[i][j].getHitbox().getX(), (enemies[i][j].getHitbox().getY() - enemies[i][j].getHeight() ), enemies[i][j].getHitbox().getWidth(), enemies[i][j].getHitbox().getHeight())) {
+					this.playSoundEffect(2);
 					collisionDetected = true;
 					resetPlayerProjectile();
 					myPlayer.setAlienFlag(i, j, false);
@@ -314,19 +325,51 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	public void destroyUFO(UFO ufo) {
 		ufo.setIsAlive(false);
 		// Pass in ID of "2" for UFOs:
-		this.updatePlayerScore(2);
+		this.updatePlayerScore(4);
 	}
 	
 	private Boolean detectUFOCollision() {
 		Boolean collisionDetected = false;
 		//If UFO collision detected:
 		if(this.hitbox.intersects(myUFO.getHitbox())) {
+			this.playSoundEffect(2);
 			collisionDetected = true;
 			resetPlayerProjectile();
 			destroyUFO(myUFO);	
 		}
 		return collisionDetected;
 	}
+	
+	public void playSoundEffect(int i) {
+		int sfx_id = i;
+		URL url = this.getClass().getClassLoader().getResource("");
+	      try {
+	    	  // Play sound effect corresponding to id passed:
+	    	  if(sfx_id == 1) {
+			     url = this.getClass().getClassLoader().getResource("sfx_projectilePlayer.wav");
+	    	  }
+	    	  else {
+				 url = this.getClass().getClassLoader().getResource("sfx_enemyExplosion.wav");
+	    	  }
+
+	         // Open audio input stream:
+	         AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
+	         
+	         // Retrieve sound clip resource:
+	         Clip clip = AudioSystem.getClip();
+	         
+	         // Open clip and load sample from input stream:
+	         clip.open(audioIn);
+	         clip.start();
+	         
+	      } catch (UnsupportedAudioFileException e) {
+	         e.printStackTrace();
+	      } catch (IOException e) {
+	         e.printStackTrace();
+	      } catch (LineUnavailableException e) {
+	         e.printStackTrace();
+	      }
+	   }
 	
 	public void launchPlayerProjectile() {
 		this.setKeyPressed(true);
@@ -337,6 +380,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	@Override
 	public void run() {
 		while(this.getKeyPressed() == true) {
+			this.playSoundEffect(1);
 			int thread_x = this.getX();
 			int thread_y = this.getY();
 			while(thread_y > 0 && this.getCollision() == false) {
@@ -350,7 +394,7 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 					break;
 				}
 				else if(this.detectUFOCollision() ) {
-					
+					break;
 				}
 				else if(thread_y <= 0) {
 					resetPlayerProjectile();

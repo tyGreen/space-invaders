@@ -1,6 +1,13 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URL;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.Timer;
@@ -143,6 +150,30 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 		}
 	}
 	
+	public void playSoundEffect() {
+		try {
+			// Retrieve sound file & store in var:
+			URL url = this.getClass().getClassLoader().getResource("sfx_playerExplosion.wav");
+
+			// Open audio input stream:
+			AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
+ 
+			// Retrieve sound clip resource:
+			Clip clip = AudioSystem.getClip();
+ 
+			// Open clip and load sample from input stream:
+			clip.open(audioIn);
+			clip.start();
+	         
+	      } catch (UnsupportedAudioFileException e) {
+	         e.printStackTrace();
+	      } catch (IOException e) {
+	         e.printStackTrace();
+	      } catch (LineUnavailableException e) {
+	         e.printStackTrace();
+	      }
+	  }
+	
 	public void startEnemyProjectileThread() {
 		thread = new Thread(this, "Enemy Projectile Thread");
 		thread.start();
@@ -161,13 +192,14 @@ public class ProjectileEnemy extends Sprite implements Runnable {
 				while(!this.getStopProjectile() && (this.y + GameProperties.PRJCT_ENEMY_STEP) < GameProperties.SCREEN_HEIGHT) {
 					launchProjectile();
 					if(collisionDetected()) {
+						this.playSoundEffect();
 						subtractPlayerLife();
 						resetProjectile();
 						resetPlayer();
 						break;
 					}
 					try {
-						Thread.sleep(200);
+						Thread.sleep(100);
 					}
 					catch(Exception e) {
 						

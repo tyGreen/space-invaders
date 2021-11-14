@@ -1,3 +1,11 @@
+import java.io.IOException;
+import java.net.URL;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JLabel;
 
 public class UFO extends Sprite implements Runnable {
@@ -60,6 +68,30 @@ public class UFO extends Sprite implements Runnable {
 		}
 	}
 	
+	public void playSoundEffect() {
+		try {
+			// Retrieve sound file & store in var:
+			URL url = this.getClass().getClassLoader().getResource("sfx_ufo2.wav");
+
+			// Open audio input stream:
+			AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
+ 
+			// Retrieve sound clip resource:
+			Clip clip = AudioSystem.getClip();
+ 
+			// Open clip and load sample from input stream:
+			clip.open(audioIn);
+			clip.loop(1);
+			
+	      } catch (UnsupportedAudioFileException e) {
+	         e.printStackTrace();
+	      } catch (IOException e) {
+	         e.printStackTrace();
+	      } catch (LineUnavailableException e) {
+	         e.printStackTrace();
+	      }
+	  }
+	
 	public void startUFOThread() {
 		this.thread = new Thread(this, "UFO thread");
 		this.thread.start();
@@ -72,6 +104,7 @@ public class UFO extends Sprite implements Runnable {
 		while(!this.getStopThread()) {
 			if(UFOWillSpawn()) {
 				while(this.getIsAlive() && this.getX() <= GameProperties.SCREEN_WIDTH) {
+					this.playSoundEffect();
 					moveUFO();
 					// If UFO has been shot:
 					if(!getIsAlive()) {
@@ -79,7 +112,7 @@ public class UFO extends Sprite implements Runnable {
 						break;
 					}
 					try {
-						Thread.sleep(200);
+						Thread.sleep(300);
 					}
 					catch(Exception e) {
 						

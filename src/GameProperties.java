@@ -9,10 +9,12 @@ public class GameProperties {
 	public static final int SCORE_TXT_SIZE = 20;
 	
 	// Points System:
-	public static final int PTS_PER_ENEMY = 25;
-	public static final int PTS_PER_UFO = 300;
-	public static final int NO_HIT_BONUS = 1000;
-	public static final int PTS_PER_BONUS_LIFE = 250;
+	public static final int PTS_PER_UFO = 150;
+	public static final int PTS_PER_ENEMY1 = 30;
+	public static final int PTS_PER_ENEMY2 = 20;
+	public static final int PTS_PER_ENEMY3 = 10;
+	public static final int NO_HIT_BONUS = 300;
+	public static final int PTS_PER_BONUS_LIFE = 50;
 	
 	
 	// # pixels sprites move upon trigger:
@@ -27,7 +29,7 @@ public class GameProperties {
 	public static final int ENEMY_WIDTH = 50;
 	public static final int ENEMY_HEIGHT = 50;
 	public static final int ENEMY_SPACING = 0;
-	public static int ENEMY_STEP = 5;
+	public static int ENEMY_STEP = 2;
 	
 	public static final int PRJCT_ENEMY_STEP = 20;
 	public static final int PRJCT_ENEMY_WIDTH = 25;
@@ -36,8 +38,13 @@ public class GameProperties {
 	
 	public static final int UFO_WIDTH = 60;
 	public static final int UFO_HEIGHT = 26;
-	public static int UFO_STEP = 10;
-	public static final int UFO_SPAWN_FREQ = 50;
+	public static final int UFO_STEP = 20;
+	public static final int UFO_SPAWN_FREQ = 75;
+	public static final int UFO_SFX_DURATION = 50;
+
+	// Player Life Icons:
+	public static final int PLAYER_LIFE_ICON_WIDTH = 30;
+	public static final int PLAYER_LIFE_ICON_HEIGHT = 30;
 
 	// # rows & columns in ememy array:
 	public static final int ENEMY_ROWS = 5;
