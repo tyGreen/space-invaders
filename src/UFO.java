@@ -43,7 +43,6 @@ public class UFO extends Sprite implements Runnable {
 		// Generates two random integers between 1 & GameProperties.ENEMY_SHOT_FREQ:
 		int randomInt1 = (int)(Math.random() * GameProperties.UFO_SPAWN_FREQ + 1);
 		int randomInt2 = (int)(Math.random() * GameProperties.UFO_SPAWN_FREQ + 1);
-		System.out.println(randomInt1 + ", " + randomInt2);
 		// If integers match:
 		if(randomInt1 == randomInt2) {
 			return true;

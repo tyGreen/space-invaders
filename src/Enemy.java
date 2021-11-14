@@ -1,3 +1,4 @@
+
 import javax.swing.JLabel;
 
 public class Enemy extends Sprite implements Runnable {
