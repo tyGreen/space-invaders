@@ -93,15 +93,12 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	public void updatePlayerScore(int id) {
 		if(id == 1) {
 			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY1);
-
 		}
 		else if(id == 2) {
 			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY2);
-
 		}
 		else if(id == 3) {
 			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_ENEMY3);
-
 		}
 		else {
 			myPlayer.setPlayerScore(myPlayer.getPlayerScore() + GameProperties.PTS_PER_UFO);
@@ -139,7 +136,6 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 							if(enemyHadFocus) {
 								enemies[i][j].setHasFocus(true);
 							}
-//							enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 							break OUTER;
 						}
 					}
@@ -179,7 +175,6 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 								
 								// Becomes the next right bumper:
 								enemies[i][j].setIsBottomBumper(true);
-//								enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 								if(enemyHadFocus) {
 									enemies[i][j].setHasFocus(true);
 								}
@@ -216,7 +211,6 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 						if(enemies[i][j].getInMotion()) {
 							// Becomes the next right bumper:
 							enemies[i][j].setIsLeftBumper(true);
-//							enemies[i][j].getLbl_enemy().setIcon(new ImageIcon(getClass().getResource("img_playerLives.png")));
 							if(enemyHadFocus) {
 								enemies[i][j].setHasFocus(true);
 							}
@@ -231,15 +225,12 @@ public class ProjectilePlayer extends Sprite implements Runnable {
 	private void increaseInvasionSpeed(int count) {
 		switch(count) {
 			case 40: 
-				GameProperties.ENEMY_STEP *= 2; 
+				GameProperties.ENEMY_STEP *= 4; 
 				break;
 			case 25: 
 				GameProperties.ENEMY_STEP *= 2; 
 				break;
 			case 10: 
-				GameProperties.ENEMY_STEP *= 2; 
-				break;
-			case 5: 
 				GameProperties.ENEMY_STEP *= 2; 
 				break;
 			case 1: 

@@ -30,7 +30,6 @@ public class Sprite {
 	public void setVisible(Boolean visible) {this.visible = visible;}
 	
 	public Rectangle getHitbox() {return hitbox;}
-//	public void setHitbox(Rectangle hitbox) {this.hitbox = hitbox;}
 	
 	//Default constructor:
 	public Sprite() {

@@ -5,8 +5,6 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -15,11 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -36,8 +29,8 @@ public class GameScreen1 extends JFrame implements KeyListener{
 	private UFO myUFO;
 	
 	//JLabels to display sprites:
-	private JLabel lbl_player, lbl_prjct_player, lbl_bg, lbl_score, lbl_currentScore, lbl_UFO;
-	private ImageIcon img_player, img_enemy, img_prjct_player, img_prjct_enemy, img_bg, img_UFO;
+	private JLabel lbl_player, lbl_prjct_player, lbl_score, lbl_currentScore, lbl_UFO;
+	private ImageIcon img_player, img_enemy, img_prjct_player, img_prjct_enemy, img_UFO;
 	private JLabel[] lbl_playerLives;
 		
 	//Graphics container:
@@ -103,18 +96,16 @@ public class GameScreen1 extends JFrame implements KeyListener{
 				if(i == 0) {
 					img_enemy = new ImageIcon(getClass().getResource("img_enemy1.gif"));
 					enemies[i][j].setEnemyID(1);
-
 				}
 				else if (i == 1 || i == 2) {
 					img_enemy = new ImageIcon(getClass().getResource("img_enemy2.gif"));
 					enemies[i][j].setEnemyID(2);
-
-
 				}
 				else {
 					img_enemy = new ImageIcon(getClass().getResource("img_enemy3.gif"));
 					enemies[i][j].setEnemyID(3);
 				}
+				
 				enemies[i][j].getLbl_enemy().setIcon(img_enemy);
 				
 				// Set the "bumpers" (enemies to reach walls first):
